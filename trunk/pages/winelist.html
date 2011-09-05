@@ -257,14 +257,14 @@ var WineListTransform;
       return result;
     }
 
-    function loadCredentialsFromQueryString() {
+    function getCredentialsFromQueryString() {
       return {
         user: queryString["user"],
         password: queryString["password"]
       };
     }
 
-    function loadCredentialsFromForm() {
+    function getCredentialsFromForm() {
       return {
         user: el('user-input').value,
         password: el('password-input').value
@@ -295,7 +295,7 @@ var WineListTransform;
 
       cleanDataXML = dataCleanupProcessor.transformToDocument(rawDataXML);
       presentationHTML = dataPresentationProcessor.transformToDocument(cleanDataXML);
-      el('html-display').innerHTML = presentationHTML.body.innerHTML;
+      el('wine-list').innerHTML = presentationHTML.body.innerHTML;
     }
 
     function getResponseErrorMessage(response) {
@@ -338,22 +338,44 @@ var WineListTransform;
       return true;
     }
 
-    function showCredentialsPrompt() {
-      el('credentials-prompt').style.display = "block";
+    function setBlockElementVisible(id, visible) {
+      var element;
+
+      element = el(id);
+
+      if (visible) {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
     }
 
-    function hideCredentialsPrompt() {
-      el('credentials-prompt').style.display = "none";
+    function setMainContentVisible(visible) {
+      setBlockElementVisible('main', visible);
+    }
+
+    function setWineListVisible(visible) {
+      setBlockElementVisible('wine-list', visible);
+    }
+
+    function showMainContent() {
+      setMainContentVisible(true);
+      setWineListVisible(false);
+    }
+
+    function showWineList() {
+      setMainContentVisible(false);
+      setWineListVisible(true);
     }
 
     function updatePageState(credentials, succeeded) {
       var queryCredentials,
           newUri;
 
-      queryCredentials = loadCredentialsFromQueryString();
+      queryCredentials = getCredentialsFromQueryString();
 
       if (succeeded) {
-        hideCredentialsPrompt();
+        showWineList();
         processRawData();
 
         if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
@@ -361,7 +383,7 @@ var WineListTransform;
         }
 
       } else {
-        showCredentialsPrompt();
+        showMainContent();
 
         if (queryCredentials.user || queryCredentials.password) {
           newUri = "?";
@@ -369,7 +391,13 @@ var WineListTransform;
       }
 
       if (newUri) {
+        window.onpopstate = function () {
+          queryString = getRawQueryString();
+          loadWineListWithQueryStringCredentials();
+        };
+
         window.history.pushState(null, 'Wine List', newUri);
+        queryString = getRawQueryString();
       }
     }
 
@@ -381,31 +409,41 @@ var WineListTransform;
       }
 
       updatePageState(credentials, succeeded);
+
+      return succeeded;
     }
 
-  WineListTransform = {
-
-    loadWineList: function () {
+    function loadWineListWithQueryStringCredentials() {
       var credentials;
 
-      init();
-
-      credentials = loadCredentialsFromQueryString();
+      credentials = getCredentialsFromQueryString();
       loadWineList(credentials);
-    },
+    }
 
-    reloadWithFormCredentials: function () {
+    function loadWineListWithFormCredentials() {
       var credentials;
 
-      credentials = loadCredentialsFromForm();
+      credentials = getCredentialsFromForm();
 
       if (credentials.user && credentials.password) {
         loadWineList(credentials);
 
       } else {
         alert("A CellarTracker handle and password are required.");
-        updatePageState(credentials, succeeded);
+        updatePageState(credentials, false);
       }
+    }
+
+  WineListTransform = {
+
+    loadWineList: function () {
+      init();
+      loadWineListWithQueryStringCredentials();
+    },
+
+    handleCredentialsFormSubmit: function (e) {
+      e.preventDefault();
+      loadWineListWithFormCredentials();
     }
 
   };
@@ -413,6 +451,35 @@ var WineListTransform;
 })();
     //]]>
     </script>
+
+    <style type="text/css">
+    #main {
+      margin-left: auto;
+      margin-right: auto;
+      width: 40%;
+      min-width: 35em;
+      display: none;
+    }
+
+    #credentials-prompt {
+      text-align: center;
+      margin: 0.5em;
+    }
+
+    #credentials-prompt > span {
+      display: inline-block;
+      border: 1px solid black;
+      text-align: left;
+    }
+
+    #credentials-fields {
+      padding: 0.2em 0.5em 0.2em 0.5em;
+    }
+
+    #footer {
+      text-align: center;
+    }
+    </style>
 
     <style type="text/css">
     .body {
@@ -492,25 +559,38 @@ var WineListTransform;
   </style>
   </head>
   <body onload="WineListTransform.loadWineList();">
-    <div id="credentials-prompt" style="display: none;">
-      <form id="credentials-form" onSubmit="WineListTransform.reloadWithFormCredentials(); return false;">
-        <table>
-          <tr>
-            <td>CellarTracker!&trade; handle:</td>
-            <td><input id="user-input" type="text" /></td>
-          </tr>
-          <tr>
-            <td>Password:</td>
-            <td><input id="password-input" type="password" /></td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <input type="submit" value="Load wine list" />
-            </td>
-          </tr>
-        </table>
-    </form>
+    <div id="main">
+      <h1>Cellar View</h1>
+      <p>Extend the viewing options available from CellarTracker. Provide your CellarTracker!&trade; information below, then load the wine list. Bookmark the wine list page to get back to it without reentering your user information.</p>
+      <p>Note that your password will be sent to CellarTracker in plain text and will be visible in your browser's address bar.</p>
+      <div id="credentials-prompt">
+        <span>
+          <form id="credentials-form" onSubmit="WineListTransform.handleCredentialsFormSubmit(event);">
+            <table id="credentials-fields">
+              <tr>
+                <th colspan="2">CellarTracker!&trade; user information</th>
+              </tr>
+              <tr>
+                <td>Handle:</td>
+                <td><input id="user-input" type="text" /></td>
+              </tr>
+              <tr>
+                <td>Password:</td>
+                <td><input id="password-input" type="password" /></td>
+              </tr>
+              <tr>
+                <td colspan="2" align="right">
+                  <input type="submit" value="Load wine list" />
+                </td>
+              </tr>
+            </table>
+          </form>
+        </span>
+      </div>
+      <div id="footer">
+        <span><a href="http://code.google.com/p/cellar-view/" title="Cellar View on Google Code">About Cellar View</a> - <a href="http://www.cellartracker.com/">CellarTracker!&trade;</a>
+      </div>
     </div>
-    <div id="html-display"></div>
+    <div id="wine-list"></div>
   </body>
 </html>
