@@ -52,14 +52,14 @@ var WineListTransform;
       return result;
     }
 
-    function loadCredentialsFromQueryString() {
+    function getCredentialsFromQueryString() {
       return {
         user: queryString["user"],
         password: queryString["password"]
       };
     }
 
-    function loadCredentialsFromForm() {
+    function getCredentialsFromForm() {
       return {
         user: el('user-input').value,
         password: el('password-input').value
@@ -90,7 +90,7 @@ var WineListTransform;
 
       cleanDataXML = dataCleanupProcessor.transformToDocument(rawDataXML);
       presentationHTML = dataPresentationProcessor.transformToDocument(cleanDataXML);
-      el('html-display').innerHTML = presentationHTML.body.innerHTML;
+      el('wine-list').innerHTML = presentationHTML.body.innerHTML;
     }
 
     function getResponseErrorMessage(response) {
@@ -133,22 +133,44 @@ var WineListTransform;
       return true;
     }
 
-    function showCredentialsPrompt() {
-      el('credentials-prompt').style.display = "block";
+    function setBlockElementVisible(id, visible) {
+      var element;
+
+      element = el(id);
+
+      if (visible) {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
     }
 
-    function hideCredentialsPrompt() {
-      el('credentials-prompt').style.display = "none";
+    function setMainContentVisible(visible) {
+      setBlockElementVisible('main', visible);
+    }
+
+    function setWineListVisible(visible) {
+      setBlockElementVisible('wine-list', visible);
+    }
+
+    function showMainContent() {
+      setMainContentVisible(true);
+      setWineListVisible(false);
+    }
+
+    function showWineList() {
+      setMainContentVisible(false);
+      setWineListVisible(true);
     }
 
     function updatePageState(credentials, succeeded) {
       var queryCredentials,
           newUri;
 
-      queryCredentials = loadCredentialsFromQueryString();
+      queryCredentials = getCredentialsFromQueryString();
 
       if (succeeded) {
-        hideCredentialsPrompt();
+        showWineList();
         processRawData();
 
         if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
@@ -156,7 +178,7 @@ var WineListTransform;
         }
 
       } else {
-        showCredentialsPrompt();
+        showMainContent();
 
         if (queryCredentials.user || queryCredentials.password) {
           newUri = "?";
@@ -164,7 +186,13 @@ var WineListTransform;
       }
 
       if (newUri) {
+        window.onpopstate = function () {
+          queryString = getRawQueryString();
+          loadWineListWithQueryStringCredentials();
+        };
+
         window.history.pushState(null, 'Wine List', newUri);
+        queryString = getRawQueryString();
       }
     }
 
@@ -176,31 +204,41 @@ var WineListTransform;
       }
 
       updatePageState(credentials, succeeded);
+
+      return succeeded;
     }
 
-  WineListTransform = {
-
-    loadWineList: function () {
+    function loadWineListWithQueryStringCredentials() {
       var credentials;
 
-      init();
-
-      credentials = loadCredentialsFromQueryString();
+      credentials = getCredentialsFromQueryString();
       loadWineList(credentials);
-    },
+    }
 
-    reloadWithFormCredentials: function () {
+    function loadWineListWithFormCredentials() {
       var credentials;
 
-      credentials = loadCredentialsFromForm();
+      credentials = getCredentialsFromForm();
 
       if (credentials.user && credentials.password) {
         loadWineList(credentials);
 
       } else {
         alert("A CellarTracker handle and password are required.");
-        updatePageState(credentials, succeeded);
+        updatePageState(credentials, false);
       }
+    }
+
+  WineListTransform = {
+
+    loadWineList: function () {
+      init();
+      loadWineListWithQueryStringCredentials();
+    },
+
+    handleCredentialsFormSubmit: function (e) {
+      e.preventDefault();
+      loadWineListWithFormCredentials();
     }
 
   };
