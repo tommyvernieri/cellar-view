@@ -28,8 +28,11 @@ var WineListTransform;
       req = new XMLHttpRequest();
       req.open('GET', url, false);
       req.send(null);
-      if (!(req.status == 200 || req.status == 0)) return null;
-      else return req.responseXML;
+      if (!(req.status == 200 || req.status == 0)) {
+        return null;
+      } else {
+        return req.responseXML;
+      }
     }
 
     function getRawQueryString() {
@@ -49,13 +52,26 @@ var WineListTransform;
       return result;
     }
 
+    function loadCredentialsFromQueryString() {
+      return {
+        user: queryString["user"],
+        password: queryString["password"]
+      };
+    }
+
+    function loadCredentialsFromForm() {
+      return {
+        user: el('user-input').value,
+        password: el('password-input').value
+      };
+    }
+
     function init() {
       var parser,
           dataCleanupXML,
           dataPresentationXML;
 
       queryString = getRawQueryString();
-      rawDataURL = "http://www.cellartracker.com/xlquery.asp?table=List&Location=1&User=" + queryString["user"] + "&Password=" + queryString["password"] + "&Format=xml";
 
       parser = new DOMParser();
 
@@ -74,21 +90,119 @@ var WineListTransform;
 
       cleanDataXML = dataCleanupProcessor.transformToDocument(rawDataXML);
       presentationHTML = dataPresentationProcessor.transformToDocument(cleanDataXML);
-      el('htmldisplay').innerHTML = presentationHTML.body.innerHTML;
+      el('html-display').innerHTML = presentationHTML.body.innerHTML;
     }
 
-    function loadAndProcessRawDataUsingXHR() {
+    function getResponseErrorMessage(response) {
+      var root,
+          body;
+
+      root = rawDataXML.documentElement;
+
+      //An HTML response from CellarTracker indicates an error, stored in the body element.
+      if (root && root.localName == "html" && root.namespaceURI === null) {
+        body = root.firstChild;
+        if (body && body.localName == "body" && body.namespaceURI === null) {
+          return body.textContent;
+        }
+      }
+
+      return;
+    }
+
+    function isLoginErrorResponse(response) {
+      var responseErrorMessage;
+
+      responseErrorMessage = getResponseErrorMessage(rawDataXML);
+      if (responseErrorMessage == "You are currently not logged into CellarTracker.") {
+        return true;
+      }
+
+      return false;
+    }
+
+    function loadRawDataUsingXHR(credentials) {
+      rawDataURL = "http://www.cellartracker.com/xlquery.asp?table=List&Location=1&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
       rawDataXML = getXMLSynchronousXHR(rawDataURL);
-      processRawData();
+
+      if (isLoginErrorResponse(rawDataXML)) {
+        alert("There was an error logging in. Please visit CellarTracker to confirm that your handle and password are correct.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function showCredentialsPrompt() {
+      el('credentials-prompt').style.display = "block";
+    }
+
+    function hideCredentialsPrompt() {
+      el('credentials-prompt').style.display = "none";
+    }
+
+    function updatePageState(credentials, succeeded) {
+      var queryCredentials,
+          newUri;
+
+      queryCredentials = loadCredentialsFromQueryString();
+
+      if (succeeded) {
+        hideCredentialsPrompt();
+        processRawData();
+
+        if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
+          newUri = "?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password);
+        }
+
+      } else {
+        showCredentialsPrompt();
+
+        if (queryCredentials.user || queryCredentials.password) {
+          newUri = "?";
+        }
+      }
+
+      if (newUri) {
+        window.history.pushState(null, 'Wine List', newUri);
+      }
+    }
+
+    function loadWineList(credentials) {
+      var succeeded;
+
+      if (credentials.user && credentials.password) {
+        succeeded = loadRawDataUsingXHR(credentials);
+      }
+
+      updatePageState(credentials, succeeded);
     }
 
   WineListTransform = {
-  
+
     loadWineList: function () {
+      var credentials;
+
       init();
-      loadAndProcessRawDataUsingXHR();
+
+      credentials = loadCredentialsFromQueryString();
+      loadWineList(credentials);
+    },
+
+    reloadWithFormCredentials: function () {
+      var credentials;
+
+      credentials = loadCredentialsFromForm();
+
+      if (credentials.user && credentials.password) {
+        loadWineList(credentials);
+
+      } else {
+        alert("A CellarTracker handle and password are required.");
+        updatePageState(credentials, succeeded);
+      }
     }
-    
+
   };
 
 })();
