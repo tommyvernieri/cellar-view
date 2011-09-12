@@ -111,7 +111,8 @@
 			and
 			(
 				MasterVarietal = 'White Rhone Blend' or
-				MasterVarietal = 'Pinot Gris-Pinot Blanc Blend'
+				MasterVarietal = 'Pinot Gris-Pinot Blanc Blend' or
+				MasterVarietal = 'Sémillon-Sauvignon Blanc Blend'
 			)
 		]"
 		>
