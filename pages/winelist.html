@@ -281,6 +281,10 @@ var WineListTransform;
       return result;
     }
 
+    function getIsTwoColumnLayoutFromQueryString() {
+      return queryString["columns"] == 2;
+    }
+
     function getCredentialsFromQueryString() {
       return {
         user: queryString["user"],
@@ -319,7 +323,11 @@ var WineListTransform;
 
       cleanDataXML = dataCleanupProcessor.transformToDocument(rawDataXML);
       presentationHTML = dataPresentationProcessor.transformToDocument(cleanDataXML);
-      el('wine-list').innerHTML = presentationHTML.body.innerHTML;
+      el('wine-list-wrapper').innerHTML = presentationHTML.body.innerHTML;
+
+      if (getIsTwoColumnLayoutFromQueryString()) {
+        el('wine-list-wrapper').firstChild.className += " two-column";
+      }
     }
 
     function getResponseErrorMessage(response) {
@@ -379,7 +387,7 @@ var WineListTransform;
     }
 
     function setWineListVisible(visible) {
-      setBlockElementVisible('wine-list', visible);
+      setBlockElementVisible('wine-list-wrapper', visible);
     }
 
     function showMainContent() {
@@ -528,6 +536,12 @@ var WineListTransform;
       column-rule-width: 2px;
     }
 
+    .wine-list.two-column {
+      -webkit-column-count: 2;
+      -moz-column-count: 2;
+      column-count: 2;
+    }
+
     .type-heading {
       font-size: 2em;
       font-weight: bold;
@@ -615,6 +629,6 @@ var WineListTransform;
         <span><a href="http://code.google.com/p/cellar-view/" title="Cellar View on Google Code">About Cellar View</a> - <a href="http://www.cellartracker.com/">CellarTracker!&trade;</a>
       </div>
     </div>
-    <div id="wine-list"></div>
+    <div id="wine-list-wrapper"></div>
   </body>
 </html>
