@@ -258,6 +258,55 @@
 	</xsl:template>
 	
 	<xsl:template mode="locale-abbreviated"
+		priority="1"
+		match="row
+		[
+			Locale = 'USA, California, Central Coast, Santa Rita Hills - Sta. Rita Hills'
+		]"
+		>
+		<xsl:value-of select="'Central Coast, Sta. Rita Hills'" />
+	</xsl:template>
+	
+	<xsl:template mode="locale-abbreviated"
+		priority="1"
+		match="row
+		[
+			Country = 'France' and
+			Region = 'Languedoc Roussillon' and
+			SubRegion = 'Languedoc' and
+			boolean(Appellation/text())
+		]"
+		>
+		<xsl:value-of select="concat('Languedoc, ', Appellation)" />
+	</xsl:template>
+	
+	<xsl:template mode="locale-abbreviated"
+		priority="1"
+		match="row
+		[
+			Country = 'France' and
+			Region = 'Languedoc Roussillon' and
+			SubRegion = 'Roussillon' and
+			boolean(Appellation/text())
+		]"
+		>
+		<xsl:value-of select="concat('Roussillon, ', Appellation)" />
+	</xsl:template>
+	
+	<xsl:template mode="locale-abbreviated"
+		priority="1"
+		match="row
+		[
+			Country = 'France' and
+			Region = 'Champagne' and
+			boolean(SubRegion/text()) and
+			Appellation = 'Champagne'
+		]"
+		>
+		<xsl:value-of select="concat(Region, ', ', SubRegion)" />
+	</xsl:template>
+	
+	<xsl:template mode="locale-abbreviated"
 		match="row
 		[
 			Country = 'France' and
@@ -268,13 +317,34 @@
 	</xsl:template>
 	
 	<xsl:template mode="locale-abbreviated"
-		priority="1"
 		match="row
 		[
-			Locale = 'USA, California, Central Coast, Santa Rita Hills - Sta. Rita Hills'
+			Country = 'Italy' and
+			boolean(SubRegion/text()) and
+			boolean(Appellation/text()) and
+			concat(SubRegion, ' DOC') = Appellation
 		]"
 		>
-		<xsl:value-of select="'Central Coast, Sta. Rita Hills'" />
+		<xsl:value-of select="concat(Country, ', ', Region, ', ', Appellation)" />
+	</xsl:template>
+	
+	<xsl:template mode="locale-abbreviated"
+		match="row
+		[
+			Locale = 'Italy, Piedmont, Monferrato, Barbera del Monferrato'
+		]"
+		>
+		<xsl:value-of select="'Italy, Piedmont, Barbera del Monferrato'" />
+	</xsl:template>
+	
+	<xsl:template mode="locale-abbreviated"
+		match="row
+		[
+			Country = 'Australia' and
+			Region = 'South Australia'
+		]"
+		>
+		<xsl:value-of select="substring(Locale,string-length('Australia, ') + 1)" />
 	</xsl:template>
 	
 	<xsl:template mode="locale-abbreviated" match="row">
