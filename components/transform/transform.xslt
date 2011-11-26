@@ -43,19 +43,15 @@
 	
 								<xsl:variable name="current-varietal-group" select="VarietalGroup" />
 	
-								<table class="varietal-group">
-									<tr class="varietal-heading">
-										<td colspan="2">
-											<xsl:value-of select="VarietalGroup" />
-										</td>
-									</tr>
-									<xsl:for-each select="$wines-in-stock[TypeGroup = $current-type-group and VarietalGroup = $current-varietal-group and count(. | key('wines-by-id', iWine)[1]) = 1]">
-										<xsl:sort select="SortProducer" />
-										<xsl:sort select="Wine" />
-	
-										<xsl:apply-templates select="." />
-									</xsl:for-each>
-								</table>
+								<div class="varietal-heading">
+									<xsl:value-of select="VarietalGroup" />
+								</div>
+								<xsl:for-each select="$wines-in-stock[TypeGroup = $current-type-group and VarietalGroup = $current-varietal-group and count(. | key('wines-by-id', iWine)[1]) = 1]">
+									<xsl:sort select="SortProducer" />
+									<xsl:sort select="Wine" />
+
+									<xsl:apply-templates select="." />
+								</xsl:for-each>
 							</xsl:for-each>
 						</div>
 					</xsl:for-each>
@@ -69,8 +65,8 @@
 	</xsl:template>
 
 	<xsl:template match="row">
-		<tr class="wine">
-			<td class="wine-name-and-locale">
+		<div class="wine">
+			<span class="wine-name-and-locale">
 				<xsl:choose>
 					<xsl:when test="Location = 'Wine Fridge - Future'">
 						<span class="wine-status-indicator wine-status-future">
@@ -100,8 +96,8 @@
 					<xsl:value-of select="LocaleAbbreviated" />
 					<xsl:text>)</xsl:text>
 				</span>
-			</td>
-			<td class="bin-and-price-list">
+			</span>
+			<span class="bin-and-price-list">
 				<xsl:for-each select="key('wines-by-id', iWine)">
 					<xsl:sort select="Bin" data-type="number" />
 					<span class="bin">
@@ -117,8 +113,8 @@
 						<xsl:value-of select="ceiling(number(Price))" />
 					</span>
 				</xsl:if>
-			</td>
-		</tr>
+			</span>
+		</div>
 	</xsl:template>
 	
 </xsl:stylesheet>
