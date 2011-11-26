@@ -1,23 +1,39 @@
-    .body {
+    body {
       font-size: 100%;
+      min-width: 550px;
     }
 
     .wine-list {
       -webkit-column-count: 3;
       -webkit-column-gap: 20px;
+      /*
+      -webkit-column-width: 20em;
+      -webkit-column-gap: 2em;
+      */
       -webkit-column-rule-color: black;
       -webkit-column-rule-style: solid;
       -webkit-column-rule-width: 2px;
       -moz-column-count: 3;
       -moz-column-gap: 20px;
+      /*
+      -moz-column-width: 20em;
+      -moz-column-gap: 2em;
+      */
       -moz-column-rule-color: black;
       -moz-column-rule-style: solid;
       -moz-column-rule-width: 2px;
       column-count: 3;
       column-gap: 20px;
+      /*
+      -column-width: 20em;
+      -column-gap: 2em;
+      */
       column-rule-color: black;
       column-rule-style: solid;
       column-rule-width: 2px;
+    }
+
+    .type-group {
     }
 
     .type-heading {
@@ -29,38 +45,63 @@
       background: #F3F3F3;
       border-top: solid windowtext .5pt;
       border-bottom: solid windowtext .5pt;
+      margin-bottom: 0.3em;
     }
 
     .varietal-group {
-      padding-top: 0.5em;
-      -webkit-column-break-inside: avoid;
-      break-inside: avoid-column;
     }
 
     .varietal-heading {
+      margin-top: 0.6em;
       font-weight: bold;
     }
 
     .wine {
-      padding-bottom: 0.3em;
+      margin-bottom: 0.2em;
+      position: relative; /* Establish a fixed position so children can absolutely position themselves. */
+      -webkit-column-break-inside: avoid;
+      -moz-column-break-inside: avoid;
+      column-break-inside: avoid;
+    }
+
+    table.avoid-break {
+      width: 100%;
+      -webkit-column-break-inside: avoid;
+      -moz-column-break-inside: avoid;
+      column-break-inside: avoid;
+    }
+
+    table.avoid-break td {
+      padding: 0;
     }
 
     .wine-name-and-locale {
-        vertical-align: top;
+      display: block; /* Display must be block or inline-block so the width rules are respected. */
+      /*width: 14.5em;*/ /* (Column width) minus (bin and price list width and padding) */
+      width: 78%;
+    }
+
+    .wine-name {
     }
 
     .locale {
       font-style: italic;
       font-size: 0.8em;
-      white-space: nowrap;
+      /* white-space: nowrap; */
     }
 
     .bin-and-price-list {
-        vertical-align: top;
-        text-align: right;
-      padding-left: 0.5em;
-      max-width: 7em;
-      min-width: 5em;
+      text-align: right;
+      padding-left: 2%;
+      display: block; /* Display must be block or inline-block so the width rules are respected. */
+      width: 20%; /* Use the same width so we don't have to recompute the width available for the wine name on each row. */
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    .hide-prices .price-list-item {
+      display: none;
     }
 
     .price {
@@ -69,6 +110,6 @@
 
     .legend {
       padding-top: 0.5em;
-      -webkit-column-break-inside: avoid;
-      break-inside: avoid-column;
+      /* -webkit-column-break-inside: avoid; */
+      /* break-inside: avoid-column; */
     }
