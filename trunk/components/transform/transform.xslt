@@ -106,11 +106,11 @@
 					<xsl:if test="not(position() = last())">
 						<xsl:text>, </xsl:text>
 					</xsl:if>
-          <xsl:if test="position() = last() and number(Price) > 0">
-            <span class="price-list-item">
-              <xsl:text>, </xsl:text>
-            </span>
-          </xsl:if>
+					<xsl:if test="position() = last() and number(Price) > 0">
+						<span class="price-list-item">
+							<xsl:text>, </xsl:text>
+						</span>
+					</xsl:if>
 				</xsl:for-each>
 				<xsl:if test="number(Price) > 0">
 					<span class="price price-list-item">
