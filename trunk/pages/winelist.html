@@ -73,83 +73,108 @@ var WineListTransform;
       t = t + ' /> <\/xsl:apply-templates> <\/xsl:template> <xsl:template mode';
       t = t + '="varietal-group" match="row [ Type = \'White\' and ( MasterVar';
       t = t + 'ietal = \'White Rhone Blend\' or MasterVarietal = \'Pinot Gris-';
-      t = t + 'Pinot Blanc Blend\' ) ]" > <xsl:apply-templates mode="varietal-';
-      t = t + 'group-suffix" select="."> <xsl:with-param name="varietal-group-';
-      t = t + 'base" select="\'White Blend\'" /> <\/xsl:apply-templates> <\/xs';
-      t = t + 'l:template> <xsl:template mode="varietal-group" match="row [ Ty';
-      t = t + 'pe = \'Red\' and ( MasterVarietal = \'Cabernet-Syrah Blend\' ) ';
-      t = t + ']" > <xsl:apply-templates mode="varietal-group-suffix" select="';
-      t = t + '."> <xsl:with-param name="varietal-group-base" select="\'Red Bl';
-      t = t + 'end\'" /> <\/xsl:apply-templates> <\/xsl:template> <xsl:templat';
-      t = t + 'e mode="varietal-group" match="row [ Type = \'Red\' and ( Maste';
-      t = t + 'rVarietal = \'Red Bordeaux Blend\' ) ]" > <xsl:apply-templates ';
-      t = t + 'mode="varietal-group-suffix" select="."> <xsl:with-param name="';
-      t = t + 'varietal-group-base" select="\'Red Blend - Bordeaux\'" /> <\/xs';
-      t = t + 'l:apply-templates> <\/xsl:template> <xsl:template mode="varieta';
-      t = t + 'l-group" match="row [ Type = \'Red\' and ( MasterVarietal = \'S';
-      t = t + 'uperTuscan Blend\' ) ]" > <xsl:apply-templates mode="varietal-g';
-      t = t + 'roup-suffix" select="."> <xsl:with-param name="varietal-group-b';
-      t = t + 'ase" select="\'Red Blend - SuperTuscan\'" /> <\/xsl:apply-templ';
-      t = t + 'ates> <\/xsl:template> <xsl:template mode="varietal-group" matc';
-      t = t + 'h="row"> <xsl:apply-templates mode="varietal-group-suffix" sele';
-      t = t + 'ct="."> <xsl:with-param name="varietal-group-base" select="Mast';
-      t = t + 'erVarietal" /> <\/xsl:apply-templates> <\/xsl:template> <xsl:te';
-      t = t + 'mplate mode="varietal-group-suffix" match="row [ Type = \'White';
-      t = t + ' - Sparkling\' or Type = \'Rosé - Sparkling\' or Type = \'Red -';
-      t = t + ' Sparkling\' ]" > <xsl:param name="varietal-group-base" /> <xsl';
-      t = t + ':value-of select="\'Sparkling\'" /> <\/xsl:template> <xsl:templ';
-      t = t + 'ate mode="varietal-group-suffix" match="row"> <xsl:param name="';
-      t = t + 'varietal-group-base" /> <xsl:value-of select="$varietal-group-b';
-      t = t + 'ase" /> <\/xsl:template> <xsl:template mode="type-group-varieta';
-      t = t + 'l-sort-order" match="row"> <xsl:choose> <xsl:when test="Type = ';
-      t = t + '\'White - Sparkling\'"><xsl:value-of select="1"/><\/xsl:when> <';
-      t = t + 'xsl:when test="Type = \'Rosé - Sparkling\'"><xsl:value-of selec';
-      t = t + 't="1"/><\/xsl:when> <xsl:when test="Type = \'Red - Sparkling\'"';
-      t = t + '><xsl:value-of select="1"/><\/xsl:when> <xsl:when test="Type = ';
-      t = t + '\'Rosé\'"><xsl:value-of select="2"/><\/xsl:when> <xsl:when test';
-      t = t + '="Type = \'White\'"><xsl:value-of select="3"/><\/xsl:when> <xsl';
-      t = t + ':when test="Type = \'White - Off-dry\'"><xsl:value-of select="3';
-      t = t + '"/><\/xsl:when> <xsl:when test="Type = \'Red\'"><xsl:value-of s';
-      t = t + 'elect="4"/><\/xsl:when> <xsl:when test="Type = \'White - Sweet/';
-      t = t + 'Dessert\'"><xsl:value-of select="5"/><\/xsl:when> <xsl:when tes';
-      t = t + 't="Type = \'Rosé - Sweet/Dessert\'"><xsl:value-of select="5"/><';
-      t = t + '\/xsl:when> <xsl:when test="Type = \'Red - Sweet/Dessert\'"><xs';
-      t = t + 'l:value-of select="6"/><\/xsl:when> <xsl:when test="Type = \'Wh';
-      t = t + 'ite - Fortified\'"><xsl:value-of select="7"/><\/xsl:when> <xsl:';
-      t = t + 'when test="Type = \'Red - Fortified\'"><xsl:value-of select="8"';
-      t = t + '/><\/xsl:when> <xsl:when test="Type = \'Fruit/Vegetable Wine\'"';
-      t = t + '><xsl:value-of select="9"/><\/xsl:when> <xsl:when test="Type = ';
-      t = t + '\'Sake\'"><xsl:value-of select="9"/><\/xsl:when> <xsl:when test';
-      t = t + '="Type = \'Spirits\'"><xsl:value-of select="9"/><\/xsl:when> <x';
-      t = t + 'sl:when test="Type = \'Liqueur\'"><xsl:value-of select="9"/><\/';
-      t = t + 'xsl:when> <xsl:when test="Type = \'Non-alcoholic\'"><xsl:value-';
-      t = t + 'of select="9"/><\/xsl:when> <xsl:otherwise><xsl:value-of select';
-      t = t + '="10"/><\/xsl:otherwise> <\/xsl:choose> <\/xsl:template> <xsl:t';
-      t = t + 'emplate mode="locale-abbreviated" match="row [ Country = \'USA';
-      t = t + '\' and Region = \'California\' and SubRegion = \'Unknown\' ]" >';
-      t = t + ' <xsl:value-of select="\'California\'" /> <\/xsl:template> <xsl';
-      t = t + ':template mode="locale-abbreviated" match="row [ Country = \'US';
-      t = t + 'A\' and Region = \'California\' and SubRegion != \'Unknown\' an';
-      t = t + 'd not(boolean(Appellation/text())) ]" > <xsl:value-of select="S';
-      t = t + 'ubRegion" /> <\/xsl:template> <xsl:template mode="locale-abbrev';
-      t = t + 'iated" match="row [ Country = \'USA\' and Region = \'California';
-      t = t + '\' and SubRegion != \'Unknown\' and boolean(Appellation/text())';
-      t = t + ' ]" > <xsl:value-of select="concat(SubRegion,\', \',Appellation';
-      t = t + ')" /> <\/xsl:template> <xsl:template mode="locale-abbreviated" ';
-      t = t + 'match="row [ Country = \'USA\' and Region != \'California\' and';
-      t = t + ' boolean(Region/text()) ]" > <xsl:value-of select="substring(Lo';
-      t = t + 'cale,string-length(\'USA, \') + 1)" /> <\/xsl:template> <xsl:te';
-      t = t + 'mplate mode="locale-abbreviated" match="row [ Country = \'Franc';
-      t = t + 'e\' and Region != \'France\' ]" > <xsl:value-of select="substri';
-      t = t + 'ng(Locale,string-length(\'France, \') + 1)" /> <\/xsl:template>';
-      t = t + ' <xsl:template mode="locale-abbreviated" priority="1" match="ro';
-      t = t + 'w [ Locale = \'USA, California, Central Coast, Santa Rita Hills';
-      t = t + ' - Sta. Rita Hills\' ]" > <xsl:value-of select="\'Central Coast';
-      t = t + ', Sta. Rita Hills\'" /> <\/xsl:template> <xsl:template mode="lo';
-      t = t + 'cale-abbreviated" match="row"> <xsl:value-of select="Locale" />';
-      t = t + ' <\/xsl:template> <xsl:template match="@* | node()"> <xsl:copy>';
-      t = t + ' <xsl:apply-templates select="@* | node()"/> <\/xsl:copy> <\/xs';
-      t = t + 'l:template><\/xsl:stylesheet>';
+      t = t + 'Pinot Blanc Blend\' or MasterVarietal = \'Sémillon-Sauvignon Bl';
+      t = t + 'anc Blend\' ) ]" > <xsl:apply-templates mode="varietal-group-su';
+      t = t + 'ffix" select="."> <xsl:with-param name="varietal-group-base" se';
+      t = t + 'lect="\'White Blend\'" /> <\/xsl:apply-templates> <\/xsl:templa';
+      t = t + 'te> <xsl:template mode="varietal-group" match="row [ Type = \'R';
+      t = t + 'ed\' and ( MasterVarietal = \'Cabernet-Syrah Blend\' ) ]" > <xs';
+      t = t + 'l:apply-templates mode="varietal-group-suffix" select="."> <xsl';
+      t = t + ':with-param name="varietal-group-base" select="\'Red Blend\'" /';
+      t = t + '> <\/xsl:apply-templates> <\/xsl:template> <xsl:template mode="';
+      t = t + 'varietal-group" match="row [ Type = \'Red\' and ( MasterVarieta';
+      t = t + 'l = \'Red Bordeaux Blend\' ) ]" > <xsl:apply-templates mode="va';
+      t = t + 'rietal-group-suffix" select="."> <xsl:with-param name="varietal';
+      t = t + '-group-base" select="\'Red Blend - Bordeaux\'" /> <\/xsl:apply-';
+      t = t + 'templates> <\/xsl:template> <xsl:template mode="varietal-group"';
+      t = t + ' match="row [ Type = \'Red\' and ( MasterVarietal = \'SuperTusc';
+      t = t + 'an Blend\' ) ]" > <xsl:apply-templates mode="varietal-group-suf';
+      t = t + 'fix" select="."> <xsl:with-param name="varietal-group-base" sel';
+      t = t + 'ect="\'Red Blend - SuperTuscan\'" /> <\/xsl:apply-templates> <';
+      t = t + '\/xsl:template> <xsl:template mode="varietal-group" match="row"';
+      t = t + '> <xsl:apply-templates mode="varietal-group-suffix" select=".">';
+      t = t + ' <xsl:with-param name="varietal-group-base" select="MasterVarie';
+      t = t + 'tal" /> <\/xsl:apply-templates> <\/xsl:template> <xsl:template ';
+      t = t + 'mode="varietal-group-suffix" match="row [ Type = \'White - Spar';
+      t = t + 'kling\' or Type = \'Rosé - Sparkling\' or Type = \'Red - Sparkl';
+      t = t + 'ing\' ]" > <xsl:param name="varietal-group-base" /> <xsl:value-';
+      t = t + 'of select="\'Sparkling\'" /> <\/xsl:template> <xsl:template mod';
+      t = t + 'e="varietal-group-suffix" match="row"> <xsl:param name="varieta';
+      t = t + 'l-group-base" /> <xsl:value-of select="$varietal-group-base" />';
+      t = t + ' <\/xsl:template> <xsl:template mode="type-group-varietal-sort-';
+      t = t + 'order" match="row"> <xsl:choose> <xsl:when test="Type = \'White';
+      t = t + ' - Sparkling\'"><xsl:value-of select="1"/><\/xsl:when> <xsl:whe';
+      t = t + 'n test="Type = \'Rosé - Sparkling\'"><xsl:value-of select="1"/>';
+      t = t + '<\/xsl:when> <xsl:when test="Type = \'Red - Sparkling\'"><xsl:v';
+      t = t + 'alue-of select="1"/><\/xsl:when> <xsl:when test="Type = \'Rosé';
+      t = t + '\'"><xsl:value-of select="2"/><\/xsl:when> <xsl:when test="Type';
+      t = t + ' = \'White\'"><xsl:value-of select="3"/><\/xsl:when> <xsl:when ';
+      t = t + 'test="Type = \'White - Off-dry\'"><xsl:value-of select="3"/><\/';
+      t = t + 'xsl:when> <xsl:when test="Type = \'Red\'"><xsl:value-of select=';
+      t = t + '"4"/><\/xsl:when> <xsl:when test="Type = \'White - Sweet/Desser';
+      t = t + 't\'"><xsl:value-of select="5"/><\/xsl:when> <xsl:when test="Typ';
+      t = t + 'e = \'Rosé - Sweet/Dessert\'"><xsl:value-of select="5"/><\/xsl:';
+      t = t + 'when> <xsl:when test="Type = \'Red - Sweet/Dessert\'"><xsl:valu';
+      t = t + 'e-of select="6"/><\/xsl:when> <xsl:when test="Type = \'White - ';
+      t = t + 'Fortified\'"><xsl:value-of select="7"/><\/xsl:when> <xsl:when t';
+      t = t + 'est="Type = \'Red - Fortified\'"><xsl:value-of select="8"/><\/x';
+      t = t + 'sl:when> <xsl:when test="Type = \'Fruit/Vegetable Wine\'"><xsl:';
+      t = t + 'value-of select="9"/><\/xsl:when> <xsl:when test="Type = \'Sake';
+      t = t + '\'"><xsl:value-of select="9"/><\/xsl:when> <xsl:when test="Type';
+      t = t + ' = \'Spirits\'"><xsl:value-of select="9"/><\/xsl:when> <xsl:whe';
+      t = t + 'n test="Type = \'Liqueur\'"><xsl:value-of select="9"/><\/xsl:wh';
+      t = t + 'en> <xsl:when test="Type = \'Non-alcoholic\'"><xsl:value-of sel';
+      t = t + 'ect="9"/><\/xsl:when> <xsl:otherwise><xsl:value-of select="10"/';
+      t = t + '><\/xsl:otherwise> <\/xsl:choose> <\/xsl:template> <xsl:templat';
+      t = t + 'e mode="locale-abbreviated" match="row [ Country = \'USA\' and ';
+      t = t + 'Region = \'California\' and SubRegion = \'Unknown\' ]" > <xsl:v';
+      t = t + 'alue-of select="\'California\'" /> <\/xsl:template> <xsl:templa';
+      t = t + 'te mode="locale-abbreviated" match="row [ Country = \'USA\' and';
+      t = t + ' Region = \'California\' and SubRegion != \'Unknown\' and not(b';
+      t = t + 'oolean(Appellation/text())) ]" > <xsl:value-of select="SubRegio';
+      t = t + 'n" /> <\/xsl:template> <xsl:template mode="locale-abbreviated" ';
+      t = t + 'match="row [ Country = \'USA\' and Region = \'California\' and ';
+      t = t + 'SubRegion != \'Unknown\' and boolean(Appellation/text()) ]" > <';
+      t = t + 'xsl:value-of select="concat(SubRegion,\', \',Appellation)" /> <';
+      t = t + '\/xsl:template> <xsl:template mode="locale-abbreviated" match="';
+      t = t + 'row [ Country = \'USA\' and Region != \'California\' and boolea';
+      t = t + 'n(Region/text()) ]" > <xsl:value-of select="substring(Locale,st';
+      t = t + 'ring-length(\'USA, \') + 1)" /> <\/xsl:template> <xsl:template ';
+      t = t + 'mode="locale-abbreviated" priority="1" match="row [ Locale = \'';
+      t = t + 'USA, California, Central Coast, Santa Rita Hills - Sta. Rita Hi';
+      t = t + 'lls\' ]" > <xsl:value-of select="\'Central Coast, Sta. Rita Hil';
+      t = t + 'ls\'" /> <\/xsl:template> <xsl:template mode="locale-abbreviate';
+      t = t + 'd" priority="1" match="row [ Country = \'France\' and Region = ';
+      t = t + '\'Languedoc Roussillon\' and SubRegion = \'Languedoc\' and bool';
+      t = t + 'ean(Appellation/text()) ]" > <xsl:value-of select="concat(\'Lan';
+      t = t + 'guedoc, \', Appellation)" /> <\/xsl:template> <xsl:template mod';
+      t = t + 'e="locale-abbreviated" priority="1" match="row [ Country = \'Fr';
+      t = t + 'ance\' and Region = \'Languedoc Roussillon\' and SubRegion = \'';
+      t = t + 'Roussillon\' and boolean(Appellation/text()) ]" > <xsl:value-of';
+      t = t + ' select="concat(\'Roussillon, \', Appellation)" /> <\/xsl:templ';
+      t = t + 'ate> <xsl:template mode="locale-abbreviated" priority="1" match';
+      t = t + '="row [ Country = \'France\' and Region = \'Champagne\' and boo';
+      t = t + 'lean(SubRegion/text()) and Appellation = \'Champagne\' ]" > <xs';
+      t = t + 'l:value-of select="concat(Region, \', \', SubRegion)" /> <\/xsl';
+      t = t + ':template> <xsl:template mode="locale-abbreviated" match="row [';
+      t = t + ' Country = \'France\' and Region != \'France\' ]" > <xsl:value-';
+      t = t + 'of select="substring(Locale,string-length(\'France, \') + 1)" /';
+      t = t + '> <\/xsl:template> <xsl:template mode="locale-abbreviated" matc';
+      t = t + 'h="row [ Country = \'Italy\' and boolean(SubRegion/text()) and ';
+      t = t + 'boolean(Appellation/text()) and concat(SubRegion, \' DOC\') = A';
+      t = t + 'ppellation ]" > <xsl:value-of select="concat(Country, \', \', R';
+      t = t + 'egion, \', \', Appellation)" /> <\/xsl:template> <xsl:template ';
+      t = t + 'mode="locale-abbreviated" match="row [ Locale = \'Italy, Piedmo';
+      t = t + 'nt, Monferrato, Barbera del Monferrato\' ]" > <xsl:value-of sel';
+      t = t + 'ect="\'Italy, Piedmont, Barbera del Monferrato\'" /> <\/xsl:tem';
+      t = t + 'plate> <xsl:template mode="locale-abbreviated" match="row [ Cou';
+      t = t + 'ntry = \'Australia\' and Region = \'South Australia\' ]" > <xsl';
+      t = t + ':value-of select="substring(Locale,string-length(\'Australia, ';
+      t = t + '\') + 1)" /> <\/xsl:template> <xsl:template mode="locale-abbrev';
+      t = t + 'iated" match="row"> <xsl:value-of select="Locale" /> <\/xsl:tem';
+      t = t + 'plate> <xsl:template match="@* | node()"> <xsl:copy> <xsl:apply';
+      t = t + '-templates select="@* | node()"/> <\/xsl:copy> <\/xsl:template>';
+      t = t + '<\/xsl:stylesheet>';
       return t;
     }
 
@@ -208,23 +233,198 @@ var WineListTransform;
       t = t + 't> <\/span> <\/span> <span class="bin-and-price-list"> <xsl:for';
       t = t + '-each select="key(\'wines-by-id\', iWine)"> <xsl:sort select="B';
       t = t + 'in" data-type="number" /> <span class="bin"> <xsl:value-of sele';
-      t = t + 'ct="Bin" /> <\/span> <xsl:if test="not(position() = last()) or ';
-      t = t + 'number(Price) > 0"> <xsl:text>, <\/xsl:text> <\/xsl:if> <\/xsl:';
-      t = t + 'for-each> <xsl:if test="number(Price) > 0"> <span class="price"';
-      t = t + '> <xsl:text>$<\/xsl:text> <xsl:value-of select="ceiling(number(';
-      t = t + 'Price))" /> <\/span> <\/xsl:if> <\/span> <\/div> <\/xsl:templat';
-      t = t + 'e> <\/xsl:stylesheet>';
+      t = t + 'ct="Bin" /> <\/span> <xsl:if test="not(position() = last())"> <';
+      t = t + 'xsl:text>, <\/xsl:text> <\/xsl:if> <xsl:if test="position() = l';
+      t = t + 'ast() and number(Price) > 0"> <span class="price-list-item"> <x';
+      t = t + 'sl:text>, <\/xsl:text> <\/span> <\/xsl:if> <\/xsl:for-each> <xs';
+      t = t + 'l:if test="number(Price) > 0"> <span class="price price-list-it';
+      t = t + 'em"> <xsl:text>$<\/xsl:text> <xsl:value-of select="ceiling(numb';
+      t = t + 'er(Price))" /> <\/span> <\/xsl:if> <\/span> <\/div> <\/xsl:temp';
+      t = t + 'late> <\/xsl:stylesheet>';
       return t;
     }
 
-    var queryString,
-        dataCleanupProcessor,
-        dataPresentationProcessor,
-        rawDataURL,
-        rawDataXML;
+    var ellipsis,
+      queryString,
+      dataCleanupProcessor,
+      dataPresentationProcessor,
+      progressAnimation,
+      rawDataURL,
+      rawDataXML;
+    
+    ellipsis = String.fromCharCode(8230);
 
     function el(id) {
       return document.getElementById(id);
+    }
+
+    function setElementText(id, text) {      
+      var element;
+
+      element = el(id);
+      
+      while (element.firstChild !== null) {
+        element.removeChild(element.firstChild);
+      }
+      element.appendChild(document.createTextNode(text));
+    }
+    
+    function findClass(elementClass, className) {
+      var currentClasses,
+        existingClassIndex,
+        i,
+        length;
+
+      currentClasses = elementClass.split(/\s+/);
+      length = currentClasses.length;
+      for (i = 0; i < length; i++) {
+        if (currentClasses[i].toLowerCase() === className.toLowerCase()) {
+          existingClassIndex = i;
+          break;
+        }
+      }
+      
+      return {
+        currentClasses: currentClasses,
+        existingClassIndex: existingClassIndex
+      };
+    }
+    
+    function addClass(id, className) {
+      var classFindResult,
+        element;
+
+      element = el(id);
+      classFindResult = findClass(element.className, className);
+      
+      if (typeof classFindResult.existingClassIndex === 'undefined') {
+        element.className += ' ' + className;
+      }
+    }
+    
+    function removeClass(id, className) {
+      var classFindResult,
+        element;
+
+      element = el(id);
+      classFindResult = findClass(element.className, className);
+      
+      if (typeof classFindResult.existingClassIndex !== 'undefined') {
+        classFindResult.currentClasses.splice(classFindResult.existingClassIndex, 1);
+        element.className = classFindResult.currentClasses.join(' ');
+      }
+    }
+    
+    function setProgressStatus(text) {
+      setElementText('progress-status', text);
+    }
+
+    function setBlockElementVisible(id, visible) {
+      var element;
+
+      element = el(id);
+
+      if (visible) {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
+    }
+    
+    function setMainContentVisible(visible) {
+      setBlockElementVisible('main', visible);
+    }
+
+    function setProgressVisible(visible) {
+      setBlockElementVisible('progress', visible);
+    }
+
+    function setWineListVisible(visible) {
+      setBlockElementVisible('wine-list-wrapper', visible);
+    }
+
+    function setSpinnerCompleted(completed) {
+      var operation;
+      
+      if (completed) {
+        operation = addClass;
+      } else {
+        operation = removeClass;
+      }
+      
+      operation.call(this, 'spinner', 'completed');
+    }
+
+    function showMainContent() {
+      setMainContentVisible(true);
+      setProgressVisible(false);
+      setWineListVisible(false);
+    }
+    
+    function showProgress() {
+      setSpinnerCompleted(false);
+    
+      setMainContentVisible(false);
+      setProgressVisible(true);
+      setWineListVisible(false);
+    }
+
+    function showWineList() {
+      setMainContentVisible(false);
+      setProgressVisible(false);
+      setWineListVisible(true);
+    }
+
+    function getXMLAsyncXHR(url, callback) {
+      var req;
+
+      req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+          if (!(req.status == 200 || req.status == 0)) {
+            callback.call(this, null);
+          } else {
+            callback.call(this, req.responseXML);
+          }
+        }
+      };
+      req.open('GET', url, true);
+      req.send(null);
+    }
+    
+    function getRawQueryString() {
+      var result,
+          queryString,
+          re,
+          m;
+
+      result = {};
+      queryString = location.search.substring(1);
+      re = /([^&=]+)=([^&]*)/g;
+
+      while (m = re.exec(queryString)) {
+        result[decodeURIComponent(m[1]).toLowerCase()] = m[2];
+      }
+
+      return result;
+    }
+
+    function getIsTwoColumnLayoutFromQueryString() {
+      return queryString["columns"] == 2;
+    }
+
+    function getCredentialsFromQueryString() {
+      return {
+        user: queryString["user"],
+        password: queryString["password"]
+      };
+    }
+
+    function getCredentialsFromForm() {
+      return {
+        user: el('user-input').value,
+        password: el('password-input').value
+      };
     }
 
     // Assumes el is an Element
@@ -358,59 +558,13 @@ var WineListTransform;
     }
 
     function updateLayout() {
+      if (getIsTwoColumnLayoutFromQueryString()) {
+        el('wine-list-wrapper').firstChild.className += " two-column";
+      }
+      
       updateAllWineLayout();
       updateAllHeadingLayout('varietal-heading');
       updateAllHeadingLayout('type-heading');
-    }
-
-    function getXMLSynchronousXHR(url) {
-      var req;
-
-      req = new XMLHttpRequest();
-      req.open('GET', url, false);
-      //req.setRequestHeader('encoding', 'utf-8');
-      //req.overrideMimeType("text/xml; charset=utf-8");
-      req.send(null);
-      if (!(req.status == 200 || req.status == 0)) {
-        return null;
-      } else {
-        return req.responseXML;
-      }
-    }
-
-    function getRawQueryString() {
-      var result,
-          queryString,
-          re,
-          m;
-
-      result = {};
-      queryString = location.search.substring(1);
-      re = /([^&=]+)=([^&]*)/g;
-
-      while (m = re.exec(queryString)) {
-        result[decodeURIComponent(m[1]).toLowerCase()] = m[2];
-      }
-
-      return result;
-    }
-
-    function getIsTwoColumnLayoutFromQueryString() {
-      return queryString["columns"] == 2;
-    }
-
-    function getCredentialsFromQueryString() {
-      return {
-        user: queryString["user"],
-        password: queryString["password"]
-      };
-    }
-
-    function getCredentialsFromForm() {
-      return {
-        user: el('user-input').value,
-        password: el('password-input').value
-      };
     }
 
     function init() {
@@ -423,7 +577,7 @@ var WineListTransform;
       hidePricesParam = queryString['hideprices'];
       if (typeof hidePricesParam !== "undefined") {
         if (hidePricesParam.toLowerCase() === 'true' || hidePricesParam === '1') {
-          el('wine-list-wrapper').className += ' ' + 'hide-prices';
+          addClass('wine-list-wrapper', 'hide-prices');
         }
       }
 
@@ -441,15 +595,10 @@ var WineListTransform;
     function processRawData() {
       var cleanDataXML,
           presentationHTML;
-
+          
       cleanDataXML = dataCleanupProcessor.transformToDocument(rawDataXML);
       presentationHTML = dataPresentationProcessor.transformToDocument(cleanDataXML);
       el('wine-list-wrapper').innerHTML = presentationHTML.body.innerHTML;
-
-      if (getIsTwoColumnLayoutFromQueryString()) {
-        el('wine-list-wrapper').firstChild.className += " two-column";
-      }
-      updateLayout();
     }
 
     function getResponseErrorMessage(response) {
@@ -480,46 +629,28 @@ var WineListTransform;
       return false;
     }
 
-    function loadRawDataUsingXHR(credentials) {
+    function loadRawDataUsingXHR(credentials, callback) {
       rawDataURL = "http://www.cellartracker.com/xlquery.asp?table=List&Location=1&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
-      rawDataXML = getXMLSynchronousXHR(rawDataURL);
-
-      if (isLoginErrorResponse(rawDataXML)) {
-        alert("There was an error logging in. Please visit CellarTracker to confirm that your handle and password are correct.");
-        return false;
-      }
-
-      return true;
+      getXMLAsyncXHR(rawDataURL, function (response) {
+        rawDataXML = response;
+        
+        if (isLoginErrorResponse(rawDataXML)) {
+          alert("There was an error logging in. Please visit CellarTracker to confirm that your handle and password are correct.");
+          callback.call(this, false);
+        } else {
+          callback.call(this, true);
+        }
+      });
     }
+    
+    function updatePageUri(newUri) {
+      window.onpopstate = function () {
+        queryString = getRawQueryString();
+        loadWineListWithQueryStringCredentials();
+      };
 
-    function setBlockElementVisible(id, visible) {
-      var element;
-
-      element = el(id);
-
-      if (visible) {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
-    }
-
-    function setMainContentVisible(visible) {
-      setBlockElementVisible('main', visible);
-    }
-
-    function setWineListVisible(visible) {
-      setBlockElementVisible('wine-list-wrapper', visible);
-    }
-
-    function showMainContent() {
-      setMainContentVisible(true);
-      setWineListVisible(false);
-    }
-
-    function showWineList() {
-      setMainContentVisible(false);
-      setWineListVisible(true);
+      window.history.pushState(null, 'Wine List', newUri);
+      queryString = getRawQueryString();
     }
 
     function updatePageState(credentials, succeeded) {
@@ -528,30 +659,29 @@ var WineListTransform;
 
       queryCredentials = getCredentialsFromQueryString();
 
+      progressAnimation.stop();
+      
       if (succeeded) {
-        showWineList();
-        processRawData();
-
-        if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
-          newUri = "?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password);
-        }
+        setSpinnerCompleted(true);
+        setProgressStatus('Formatting data');
+        
+        setTimeout(function () {
+          processRawData();
+          showWineList();
+          updateLayout();
+          
+          if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
+            updatePageUri("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
+          }
+          
+        }, 200);
 
       } else {
         showMainContent();
 
         if (queryCredentials.user || queryCredentials.password) {
-          newUri = "?";
+          updatePageUri('?');
         }
-      }
-
-      if (newUri) {
-        window.onpopstate = function () {
-          queryString = getRawQueryString();
-          loadWineListWithQueryStringCredentials();
-        };
-
-        window.history.pushState(null, 'Wine List', newUri);
-        queryString = getRawQueryString();
       }
     }
 
@@ -559,12 +689,17 @@ var WineListTransform;
       var succeeded;
 
       if (credentials.user && credentials.password) {
-        succeeded = loadRawDataUsingXHR(credentials);
+        setProgressStatus('Downloading data' + ellipsis);
+        showProgress();
+        progressAnimation.start();
+        
+        loadRawDataUsingXHR(credentials, function(succeeded) {
+          updatePageState(credentials, succeeded);
+        });
+        
+      } else {
+        updatePageState(credentials, succeeded);
       }
-
-      updatePageState(credentials, succeeded);
-
-      return succeeded;
     }
 
     function loadWineListWithQueryStringCredentials() {
@@ -588,6 +723,51 @@ var WineListTransform;
       }
     }
 
+  progressAnimation = (function() {
+    var count,
+      delay,
+      timeoutId;
+    
+    delay = 100;
+    count = 0;
+    
+    function rotate() {
+      var spinnerEl,
+        transform;
+        
+      spinnerEl = document.getElementById('spinner');
+      transform = 'scale(0.5) rotate(' + count + 'deg)';
+      spinnerEl.style.MozTransform = transform;
+      spinnerEl.style.WebkitTransform = transform;
+
+      if (count === 360) {
+        count = 0;
+      }
+      count += 45;
+      
+      timeoutId = window.setTimeout(rotate, delay);
+    }
+    
+    function stopCore() {
+        if (typeof timeoutId !== 'undefined') {
+          window.clearTimeout(timeoutId);
+          timeoutId = undefined;
+        }
+    }
+    
+    return {
+      start: function() {
+        stopCore();
+        timeoutId = window.setTimeout(rotate, delay);
+      },
+      
+      stop: function() {
+        stopCore();
+      }
+    };
+
+  })();
+
   WineListTransform = {
 
     loadWineList: function () {
@@ -607,6 +787,89 @@ var WineListTransform;
     </script>
 
     <style type="text/css">
+    
+    #progress {
+      display: none;
+      position: relative;
+      max-width: 17em;
+      margin: 0 auto;
+      border: 1px solid black;
+    }
+    #progress-status {
+      left: 100px;
+      height: 100px;
+      display: table-cell;
+      vertical-align: middle;
+    }
+    
+    /* Progress spinner. See http://kilianvalkhof.com/2010/css-xhtml/css3-loading-spinners-without-images/ */
+    /* position the bars and balls correctly (rotate them and translate them outward)*/
+    #spinner {
+      position:relative;
+      width:100px;
+      height:100px;
+      float:left;
+      -moz-border-radius:100px;
+      -webkit-border-radius:100px;
+      -moz-transform:scale(0.5);
+      -webkit-transform:scale(0.5);
+    }
+    #spinner div {
+      width:20px;
+      height:20px;
+      background:#000;
+      -moz-border-radius:40px;
+      -webkit-border-radius:40px;
+      position:absolute;
+      left:40px;
+      top:40px;
+      -moz-box-shadow:black 0 0 4px;
+      -webkit-box-shadow:black 0 0 4px;
+    }
+    #spinner.completed div {
+      opacity: 1;
+    }
+    .bar1 {
+      -moz-transform:rotate(0deg) translate(0, -40px);
+      -webkit-transform:rotate(0deg) translate(0, -40px);
+      opacity:0.12;
+    }
+    .bar2 {
+      -moz-transform:rotate(45deg) translate(0, -40px);
+      -webkit-transform:rotate(45deg) translate(0, -40px);
+      opacity:0.25;
+    }
+    .bar3 {
+      -moz-transform:rotate(90deg) translate(0, -40px);
+      -webkit-transform:rotate(90deg) translate(0, -40px);
+      opacity:0.37;
+    }
+    .bar4 {
+      -moz-transform:rotate(135deg) translate(0, -40px);
+      -webkit-transform:rotate(135deg) translate(0, -40px);
+      opacity:0.50;
+    }
+    .bar5 {
+      -moz-transform:rotate(180deg) translate(0, -40px);
+      -webkit-transform:rotate(180deg) translate(0, -40px);
+      opacity:0.62;
+    }
+    .bar6 {
+      -moz-transform:rotate(225deg) translate(0, -40px);
+      -webkit-transform:rotate(225deg) translate(0, -40px);
+      opacity:0.75;
+    }
+    .bar7 {
+      -moz-transform:rotate(270deg) translate(0, -40px);
+      -webkit-transform:rotate(270deg) translate(0, -40px);
+      opacity:0.87;
+    }
+    .bar8 {
+      -moz-transform:rotate(315deg) translate(0, -40px);
+      -webkit-transform:rotate(315deg) translate(0, -40px);
+      opacity:1;
+    }
+    
     #main {
       margin-left: auto;
       margin-right: auto;
@@ -791,6 +1054,19 @@ var WineListTransform;
       <div id="footer">
         <span><a href="http://code.google.com/p/cellar-view/" title="Cellar View on Google Code">About Cellar View</a> - <a href="http://www.cellartracker.com/">CellarTracker!&trade;</a>
       </div>
+    </div>
+    <div id="progress">
+      <div id="spinner">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+        <div class="bar4"></div>
+        <div class="bar5"></div>
+        <div class="bar6"></div>
+        <div class="bar7"></div>
+        <div class="bar8"></div>
+      </div>
+      <div id="progress-status"></div>
     </div>
     <div id="wine-list-wrapper"></div>
   </body>
