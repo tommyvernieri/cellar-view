@@ -103,12 +103,17 @@
 					<span class="bin">
 						<xsl:value-of select="Bin" />
 					</span>
-					<xsl:if test="not(position() = last()) or number(Price) > 0">
+					<xsl:if test="not(position() = last())">
 						<xsl:text>, </xsl:text>
 					</xsl:if>
+          <xsl:if test="position() = last() and number(Price) > 0">
+            <span class="price-list-item">
+              <xsl:text>, </xsl:text>
+            </span>
+          </xsl:if>
 				</xsl:for-each>
 				<xsl:if test="number(Price) > 0">
-					<span class="price">
+					<span class="price price-list-item">
 						<xsl:text>$</xsl:text>
 						<xsl:value-of select="ceiling(number(Price))" />
 					</span>
