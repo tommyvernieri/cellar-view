@@ -22,46 +22,91 @@
 	<xsl:key name="wines-by-id" match="/cellartracker/list/row[Quantity > 0 and Location != 'Wine Fridge - Tasting group']" use="iWine" />
 
 	<xsl:template match="/cellartracker">
-		<html>
-			<head>
-				<title>Wine List</title>
-			</head>
-			<body>
-				<div class="wine-list">
-					<xsl:for-each select="$wines-in-stock[count(. | key('wines-by-type-group', TypeGroup)[1]) = 1]">
-						<xsl:sort select="TypeGroupSortOrder" data-type="number" />
-						
-						<xsl:variable name="current-type-group" select="TypeGroup" />
-						
-						<div class="type-group">
-							<div class="type-heading">
-								<xsl:value-of select="TypeGroup" />
-							</div>
-							<xsl:for-each select="$wines-in-stock[TypeGroup = $current-type-group and count(. | key('wines-by-varietal-group', VarietalGroup)[1]) = 1]">
-								<xsl:sort select="TypeGroupVarietalSortOrder" data-type="number" />
-								<xsl:sort select="VarietalGroup" />
+		<div class="wine-list">
+			<xsl:for-each select="$wines-in-stock[count(. | key('wines-by-type-group', TypeGroup)[1]) = 1]">
+				<xsl:sort select="TypeGroupSortOrder" data-type="number" />
+				
+				<xsl:variable name="current-type-group" select="TypeGroup" />
+				
+				<div class="type-group">
+					<xsl:for-each select="$wines-in-stock[TypeGroup = $current-type-group and count(. | key('wines-by-varietal-group', VarietalGroup)[1]) = 1]">
+						<xsl:sort select="TypeGroupVarietalSortOrder" data-type="number" />
+						<xsl:sort select="VarietalGroup" />
 	
-								<xsl:variable name="current-varietal-group" select="VarietalGroup" />
+						<xsl:variable name="current-varietal-group" select="VarietalGroup" />
+						<xsl:variable name="current-varietal-group-position" select="position()" />
 	
-								<div class="varietal-heading">
-									<xsl:value-of select="VarietalGroup" />
-								</div>
-								<xsl:for-each select="$wines-in-stock[TypeGroup = $current-type-group and VarietalGroup = $current-varietal-group and count(. | key('wines-by-id', iWine)[1]) = 1]">
-									<xsl:sort select="SortProducer" />
-									<xsl:sort select="Wine" />
+						<xsl:for-each select="$wines-in-stock[TypeGroup = $current-type-group and VarietalGroup = $current-varietal-group and count(. | key('wines-by-id', iWine)[1]) = 1]">
+							<xsl:sort select="SortProducer" />
+							<xsl:sort select="Wine" />
+							
+							<xsl:choose>
+									
+									<xsl:when test="$current-varietal-group-position = 1 and position() = 1">
+										<table class="avoid-break">
+											<tbody>
+												<tr>
+													<td>
+														
+														<div class="type-heading">
+															<xsl:value-of select="TypeGroup" />
+														</div>
+														
+														<div class="varietal-heading">
+															<xsl:value-of select="$current-varietal-group" />
+														</div>
+														
+														<xsl:apply-templates select="."/>
+														
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</xsl:when>
 
-									<xsl:apply-templates select="." />
-								</xsl:for-each>
-							</xsl:for-each>
-						</div>
+									<xsl:when test="position() = 1">
+										<table class="avoid-break">
+											<tbody>
+												<tr>
+													<td>
+														
+														<div class="varietal-heading">
+															<xsl:value-of select="$current-varietal-group" />
+														</div>
+														
+														<xsl:apply-templates select="."/>
+														
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</xsl:when>
+									
+									<xsl:otherwise>
+										<table class="avoid-break">
+											<tbody>
+												<tr>
+													<td>
+														
+														<xsl:apply-templates select="."/>
+														
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</xsl:otherwise>
+									
+							</xsl:choose>
+	
+						</xsl:for-each>
 					</xsl:for-each>
-					<div class="legend">
-						<div>&#x25CA; Could benefit from further cellaring</div>
-						<div>&#x2302; House quality wine</div>
-					</div>
 				</div>
-			</body>
-		</html>
+			</xsl:for-each>
+			<div class="legend">
+				<div>&#x25CA; Could benefit from further cellaring</div>
+				<div>&#x2302; House quality wine</div>
+			</div>
+		</div>
 	</xsl:template>
 
 	<xsl:template match="row">
@@ -93,7 +138,9 @@
 				<xsl:text> </xsl:text>
 				<span class="locale">
 					<xsl:text>(</xsl:text>
-					<xsl:value-of select="LocaleAbbreviated" />
+					<xsl:call-template name="output-locale">
+						<xsl:with-param name="value" select="LocaleAbbreviated" />
+					</xsl:call-template>
 					<xsl:text>)</xsl:text>
 				</span>
 			</span>
@@ -120,6 +167,58 @@
 				</xsl:if>
 			</span>
 		</div>
+	</xsl:template>
+	
+	<xsl:template name="output-locale">
+		<xsl:param name="value" />
+		
+		<xsl:variable name="first" select="substring-before($value, ', ')" /> 
+		<xsl:variable name="remaining" select="substring-after($value, ', ')" /> 
+		
+		<xsl:choose>
+			<xsl:when test="$value and not($first)">
+				<xsl:call-template name="output-locale-section">
+					<xsl:with-param name="value" select="$value" />
+				</xsl:call-template>
+			</xsl:when>
+
+			<xsl:when test="$first">
+				<xsl:call-template name="output-locale-section">
+					<xsl:with-param name="value" select="$first" />
+				</xsl:call-template>
+				<xsl:text>, </xsl:text>
+			</xsl:when>
+		</xsl:choose>
+		
+		<xsl:if test="$remaining">
+				<xsl:call-template name="output-locale">
+								<xsl:with-param name="value" select="$remaining" /> 
+				</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
+	
+	<xsl:template name="output-locale-section">
+		<xsl:param name="value" />
+		
+		<xsl:variable name="first" select="substring-before($value, ' ')" /> 
+		<xsl:variable name="remaining" select="substring-after($value, ' ')" /> 
+		
+		<xsl:choose>
+			<xsl:when test="$value and not($first)">
+				<xsl:value-of select="$value" />
+			</xsl:when>
+
+			<xsl:when test="$first">
+				<xsl:value-of select="$first" />
+				<xsl:text disable-output-escaping="yes">&#160;</xsl:text>
+			</xsl:when>
+		</xsl:choose>
+		
+		<xsl:if test="$remaining">
+				<xsl:call-template name="output-locale-section">
+								<xsl:with-param name="value" select="$remaining" /> 
+				</xsl:call-template>
+		</xsl:if>
 	</xsl:template>
 	
 </xsl:stylesheet>
