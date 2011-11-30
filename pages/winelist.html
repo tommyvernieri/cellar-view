@@ -562,7 +562,7 @@ var WineListTransform;
 
     function updateLayout() {
       if (getIsTwoColumnLayoutFromQueryString()) {
-        el('wine-list-wrapper').firstChild.className += " two-column";
+        addClass('wine-list-wrapper', 'two-column');
       }
       
       updateAllWineLayout();
@@ -936,7 +936,7 @@ var WineListTransform;
     .type-group {
     }
 
-    .wine-list.two-column {
+    #wine-list-wrapper.two-column>.wine-list {
       -webkit-column-count: 2;
       -moz-column-count: 2;
       column-count: 2;
