@@ -723,8 +723,9 @@ var WineListTransform;
             .after(' ');
         }
 
-        $('<span>')
+        $('<a>')
           .addClass('wine-name')
+          .attr('href', 'https://www.cellartracker.com/wine.asp?iWine=' + rowDataArray[i]['iWine'])
           .text(rowDataArray[i]['Wine'])
           .appendTo(nameAndLocale)
           .after(' ');
@@ -735,14 +736,23 @@ var WineListTransform;
           .text('(' + localeAbbreviated + ')')
           .appendTo(nameAndLocale);
 
+        if (rowDataArray[i]['BottleNote']) {
+          $('<span>')
+            .addClass('bottle-note')
+            .text(rowDataArray[i]['BottleNote'])
+            .appendTo(nameAndLocale)
+            .before('<br>');
+        }
+
         binAndPriceList = $('<span>').addClass('bin-and-price-list');
 
         currentBinList = rowDataArray[i]['BinList'];
         binCount = currentBinList.length;
 
         for (binIndex = 0; binIndex < binCount; binIndex++) {
-          binEl = $('<span>')
+          binEl = $('<a>')
             .addClass('bin')
+            .attr('href', 'https://www.cellartracker.com/barcode.asp?iWine=' + rowDataArray[i]['iWine'] + '&Size=' + encodeURIComponent(rowDataArray[i]['Size']) + '&Location=' + encodeURIComponent(rowDataArray[i]['Location']) + '&Bin=' + encodeURIComponent(currentBinList[binIndex]))
             .text(currentBinList[binIndex])
             .appendTo(binAndPriceList);
 
@@ -1121,6 +1131,18 @@ var WineListTransform;
       column-rule-width: 2px;
     }
 
+    .wine-list a:link,
+    .wine-list a:visited {
+      text-decoration: none;
+      color: black;
+    }
+
+    .wine-list a:hover,
+    .wine-list a:active {
+      text-decoration: underline;
+      color: rgb(70, 130, 180);
+    }
+
     .type-group {
     }
 
@@ -1185,6 +1207,11 @@ var WineListTransform;
       font-style: italic;
       font-size: 0.8em;
       /* white-space: nowrap; */
+    }
+
+    .bottle-note {
+      color: rgb(256, 140, 0);
+      font-size: 0.9em;
     }
 
     .bin-and-price-list {
