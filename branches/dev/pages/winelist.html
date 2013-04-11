@@ -504,7 +504,10 @@ var WineListTransform;
 
       //Move the Bin to an array for normalization to handle wines in multiple bins
       if (!Array.isArray(rowData['BinList'])) {
-        rowData['BinList'] = [rowData['Bin']];
+        rowData['BinList'] = [];
+        if (typeof rowData['Bin'] !== 'undefined') {
+          rowData['BinList'].push(rowData['Bin']);
+        }
       }
     }
 
@@ -513,7 +516,9 @@ var WineListTransform;
       //The bin array may include undefined items for some
       // wines, but the length of the array still indicates
       // the quantity.
-      targetRow['BinList'].push(sourceRow['Bin']);
+      if (typeof sourceRow['Bin'] !== 'undefined') {
+        targetRow['BinList'].push(sourceRow['Bin']);
+      }
     }
 
     function mergeRowIntoDatasets(rowData) {
