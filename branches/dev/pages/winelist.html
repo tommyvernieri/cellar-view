@@ -18,6 +18,7 @@ var WineListTransform;
       queryString,
       dataCleanupProcessor,
       dataPresentationProcessor,
+      nonBreakingSpace,
       progressAnimation,
       rowDataArray,
       rawDataURL,
@@ -25,6 +26,7 @@ var WineListTransform;
       rowDataset;
     
     ellipsis = String.fromCharCode(8230);
+    nonBreakingSpace = String.fromCharCode(160);
 
     rowDataArray = [];
 
@@ -238,7 +240,6 @@ var WineListTransform;
     }
         
     function updateLayout() {
-      return;
       var columnCount,
         i,
         length,
@@ -660,6 +661,7 @@ var WineListTransform;
         binIndex,
         currentBinList,
         i,
+        localeAbbreviated,
         previousTypeGroup,
         previousVarietalGroup,
         price,
@@ -727,10 +729,10 @@ var WineListTransform;
           .appendTo(nameAndLocale)
           .after(' ');
 
-        //TODO: Replace some locale spaces with &nbsp;
+        localeAbbreviated = rowDataArray[i]['LocaleAbbreviated'].replace(/(,)? /g, function($0, $1) { return $1 ? $0 : nonBreakingSpace; });
         $('<span>')
           .addClass('locale')
-          .text('(' + rowDataArray[i]['LocaleAbbreviated'] + ')')
+          .text('(' + localeAbbreviated + ')')
           .appendTo(nameAndLocale);
 
         binAndPriceList = $('<span>').addClass('bin-and-price-list');
