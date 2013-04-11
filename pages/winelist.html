@@ -6,286 +6,27 @@
     <title>Wine List</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+
     <script type="text/javascript">
       //<![CDATA[
 var WineListTransform;
 
 (function () {
 
-    function getDataCleanupText() {
-      var t;
-      t = '<?xml version="1.0" encoding="utf-8"?><xsl:stylesheet version="1.0"';
-      t = t + ' xmlns:xsl="http://www.w3.org/1999/XSL/Transform" > <xsl:output';
-      t = t + ' method="xml" encoding="utf-8" indent="yes" /> <xsl:template ma';
-      t = t + 'tch="row"> <xsl:copy> <xsl:apply-templates select="@* | node()"';
-      t = t + '/> <TypeGroup><xsl:apply-templates mode="type-group" select="."';
-      t = t + ' /><\/TypeGroup> <TypeGroupSortOrder><xsl:apply-templates mode=';
-      t = t + '"type-group-sort-order" select="." /><\/TypeGroupSortOrder> <Va';
-      t = t + 'rietalGroup><xsl:apply-templates mode="varietal-group" select="';
-      t = t + '." /><\/VarietalGroup> <TypeGroupVarietalSortOrder><xsl:apply-t';
-      t = t + 'emplates mode="type-group-varietal-sort-order" select="." /><\/';
-      t = t + 'TypeGroupVarietalSortOrder> <LocaleAbbreviated><xsl:apply-templ';
-      t = t + 'ates mode="locale-abbreviated" select="." /><\/LocaleAbbreviate';
-      t = t + 'd> <\/xsl:copy> <\/xsl:template> <xsl:template mode="type-group';
-      t = t + '" match="row [ Type = \'White - Sparkling\' or Type = \'Rosé - ';
-      t = t + 'Sparkling\' or Type = \'Red - Sparkling\' or Type = \'Rosé\' or';
-      t = t + ' Type = \'White\' or Type = \'White - Off-dry\' ]" > <xsl:value';
-      t = t + '-of select="\'Sparkling, Rosé, and White Wines\'"/> <\/xsl:temp';
-      t = t + 'late> <xsl:template mode="type-group" match="row [ Type = \'Red';
-      t = t + '\' ]" > <xsl:value-of select="\'Red Wines\'"/> <\/xsl:template>';
-      t = t + ' <xsl:template mode="type-group" match="row [ Type = \'White - ';
-      t = t + 'Sweet/Dessert\' or Type = \'Rosé - Sweet/Dessert\' or Type = \'';
-      t = t + 'Red - Sweet/Dessert\' ]" > <xsl:value-of select="\'Dessert Wine';
-      t = t + 's\'"/> <\/xsl:template> <xsl:template mode="type-group" match="';
-      t = t + 'row [ Type = \'White - Fortified\' or Type = \'Red - Fortified';
-      t = t + '\' or Type = \'Fruit/Vegetable Wine\' or Type = \'Sake\' or Typ';
-      t = t + 'e = \'Spirits\' or Type = \'Liqueur\' or Type = \'Non-alcoholic';
-      t = t + '\' ]" > <xsl:value-of select="\'Other\'"/> <\/xsl:template> <xs';
-      t = t + 'l:template mode="type-group" match="row"> <xsl:value-of select=';
-      t = t + '"Type"/> <\/xsl:template> <xsl:template mode="type-group-sort-o';
-      t = t + 'rder" match="row"> <xsl:choose> <xsl:when test="Type = \'White ';
-      t = t + '- Sparkling\'"><xsl:value-of select="1"/><\/xsl:when> <xsl:when';
-      t = t + ' test="Type = \'Rosé - Sparkling\'"><xsl:value-of select="2"/><';
-      t = t + '\/xsl:when> <xsl:when test="Type = \'Red - Sparkling\'"><xsl:va';
-      t = t + 'lue-of select="3"/><\/xsl:when> <xsl:when test="Type = \'Rosé\'';
-      t = t + '"><xsl:value-of select="4"/><\/xsl:when> <xsl:when test="Type =';
-      t = t + ' \'White\'"><xsl:value-of select="5"/><\/xsl:when> <xsl:when te';
-      t = t + 'st="Type = \'White - Off-dry\'"><xsl:value-of select="6"/><\/xs';
-      t = t + 'l:when> <xsl:when test="Type = \'Red\'"><xsl:value-of select="7';
-      t = t + '"/><\/xsl:when> <xsl:when test="Type = \'White - Sweet/Dessert';
-      t = t + '\'"><xsl:value-of select="8"/><\/xsl:when> <xsl:when test="Type';
-      t = t + ' = \'Rosé - Sweet/Dessert\'"><xsl:value-of select="9"/><\/xsl:w';
-      t = t + 'hen> <xsl:when test="Type = \'Red - Sweet/Dessert\'"><xsl:value';
-      t = t + '-of select="10"/><\/xsl:when> <xsl:when test="Type = \'White - ';
-      t = t + 'Fortified\'"><xsl:value-of select="11"/><\/xsl:when> <xsl:when ';
-      t = t + 'test="Type = \'Red - Fortified\'"><xsl:value-of select="12"/><';
-      t = t + '\/xsl:when> <xsl:when test="Type = \'Fruit/Vegetable Wine\'"><x';
-      t = t + 'sl:value-of select="13"/><\/xsl:when> <xsl:when test="Type = \'';
-      t = t + 'Sake\'"><xsl:value-of select="14"/><\/xsl:when> <xsl:when test=';
-      t = t + '"Type = \'Spirits\'"><xsl:value-of select="15"/><\/xsl:when> <x';
-      t = t + 'sl:when test="Type = \'Liqueur\'"><xsl:value-of select="16"/><';
-      t = t + '\/xsl:when> <xsl:when test="Type = \'Non-alcoholic\'"><xsl:valu';
-      t = t + 'e-of select="17"/><\/xsl:when> <xsl:otherwise><xsl:value-of sel';
-      t = t + 'ect="18"/><\/xsl:otherwise> <\/xsl:choose> <\/xsl:template> <xs';
-      t = t + 'l:template mode="varietal-group" match="row [ Type = \'Rosé\' ]';
-      t = t + '" > <xsl:apply-templates mode="varietal-group-suffix" select=".';
-      t = t + '"> <xsl:with-param name="varietal-group-base" select="\'Rosé\'"';
-      t = t + ' /> <\/xsl:apply-templates> <\/xsl:template> <xsl:template mode';
-      t = t + '="varietal-group" match="row [ Type = \'White\' and ( MasterVar';
-      t = t + 'ietal = \'White Rhone Blend\' or MasterVarietal = \'Pinot Gris-';
-      t = t + 'Pinot Blanc Blend\' or MasterVarietal = \'Sémillon-Sauvignon Bl';
-      t = t + 'anc Blend\' ) ]" > <xsl:apply-templates mode="varietal-group-su';
-      t = t + 'ffix" select="."> <xsl:with-param name="varietal-group-base" se';
-      t = t + 'lect="\'White Blend\'" /> <\/xsl:apply-templates> <\/xsl:templa';
-      t = t + 'te> <xsl:template mode="varietal-group" match="row [ Type = \'R';
-      t = t + 'ed\' and ( MasterVarietal = \'Cabernet-Syrah Blend\' ) ]" > <xs';
-      t = t + 'l:apply-templates mode="varietal-group-suffix" select="."> <xsl';
-      t = t + ':with-param name="varietal-group-base" select="\'Red Blend\'" /';
-      t = t + '> <\/xsl:apply-templates> <\/xsl:template> <xsl:template mode="';
-      t = t + 'varietal-group" match="row [ Type = \'Red\' and ( MasterVarieta';
-      t = t + 'l = \'Red Bordeaux Blend\' ) ]" > <xsl:apply-templates mode="va';
-      t = t + 'rietal-group-suffix" select="."> <xsl:with-param name="varietal';
-      t = t + '-group-base" select="\'Red Blend - Bordeaux\'" /> <\/xsl:apply-';
-      t = t + 'templates> <\/xsl:template> <xsl:template mode="varietal-group"';
-      t = t + ' match="row [ Type = \'Red\' and ( MasterVarietal = \'SuperTusc';
-      t = t + 'an Blend\' ) ]" > <xsl:apply-templates mode="varietal-group-suf';
-      t = t + 'fix" select="."> <xsl:with-param name="varietal-group-base" sel';
-      t = t + 'ect="\'Red Blend - SuperTuscan\'" /> <\/xsl:apply-templates> <';
-      t = t + '\/xsl:template> <xsl:template mode="varietal-group" match="row"';
-      t = t + '> <xsl:apply-templates mode="varietal-group-suffix" select=".">';
-      t = t + ' <xsl:with-param name="varietal-group-base" select="MasterVarie';
-      t = t + 'tal" /> <\/xsl:apply-templates> <\/xsl:template> <xsl:template ';
-      t = t + 'mode="varietal-group-suffix" match="row [ Type = \'White - Spar';
-      t = t + 'kling\' or Type = \'Rosé - Sparkling\' or Type = \'Red - Sparkl';
-      t = t + 'ing\' ]" > <xsl:param name="varietal-group-base" /> <xsl:value-';
-      t = t + 'of select="\'Sparkling\'" /> <\/xsl:template> <xsl:template mod';
-      t = t + 'e="varietal-group-suffix" match="row"> <xsl:param name="varieta';
-      t = t + 'l-group-base" /> <xsl:value-of select="$varietal-group-base" />';
-      t = t + ' <\/xsl:template> <xsl:template mode="type-group-varietal-sort-';
-      t = t + 'order" match="row"> <xsl:choose> <xsl:when test="Type = \'White';
-      t = t + ' - Sparkling\'"><xsl:value-of select="1"/><\/xsl:when> <xsl:whe';
-      t = t + 'n test="Type = \'Rosé - Sparkling\'"><xsl:value-of select="1"/>';
-      t = t + '<\/xsl:when> <xsl:when test="Type = \'Red - Sparkling\'"><xsl:v';
-      t = t + 'alue-of select="1"/><\/xsl:when> <xsl:when test="Type = \'Rosé';
-      t = t + '\'"><xsl:value-of select="2"/><\/xsl:when> <xsl:when test="Type';
-      t = t + ' = \'White\'"><xsl:value-of select="3"/><\/xsl:when> <xsl:when ';
-      t = t + 'test="Type = \'White - Off-dry\'"><xsl:value-of select="3"/><\/';
-      t = t + 'xsl:when> <xsl:when test="Type = \'Red\'"><xsl:value-of select=';
-      t = t + '"4"/><\/xsl:when> <xsl:when test="Type = \'White - Sweet/Desser';
-      t = t + 't\'"><xsl:value-of select="5"/><\/xsl:when> <xsl:when test="Typ';
-      t = t + 'e = \'Rosé - Sweet/Dessert\'"><xsl:value-of select="5"/><\/xsl:';
-      t = t + 'when> <xsl:when test="Type = \'Red - Sweet/Dessert\'"><xsl:valu';
-      t = t + 'e-of select="6"/><\/xsl:when> <xsl:when test="Type = \'White - ';
-      t = t + 'Fortified\'"><xsl:value-of select="7"/><\/xsl:when> <xsl:when t';
-      t = t + 'est="Type = \'Red - Fortified\'"><xsl:value-of select="8"/><\/x';
-      t = t + 'sl:when> <xsl:when test="Type = \'Fruit/Vegetable Wine\'"><xsl:';
-      t = t + 'value-of select="9"/><\/xsl:when> <xsl:when test="Type = \'Sake';
-      t = t + '\'"><xsl:value-of select="9"/><\/xsl:when> <xsl:when test="Type';
-      t = t + ' = \'Spirits\'"><xsl:value-of select="9"/><\/xsl:when> <xsl:whe';
-      t = t + 'n test="Type = \'Liqueur\'"><xsl:value-of select="9"/><\/xsl:wh';
-      t = t + 'en> <xsl:when test="Type = \'Non-alcoholic\'"><xsl:value-of sel';
-      t = t + 'ect="9"/><\/xsl:when> <xsl:otherwise><xsl:value-of select="10"/';
-      t = t + '><\/xsl:otherwise> <\/xsl:choose> <\/xsl:template> <xsl:templat';
-      t = t + 'e mode="locale-abbreviated" match="row [ Country = \'USA\' and ';
-      t = t + 'Region = \'California\' and SubRegion = \'Unknown\' ]" > <xsl:v';
-      t = t + 'alue-of select="\'California\'" /> <\/xsl:template> <xsl:templa';
-      t = t + 'te mode="locale-abbreviated" match="row [ Country = \'USA\' and';
-      t = t + ' Region = \'California\' and SubRegion != \'Unknown\' and not(b';
-      t = t + 'oolean(Appellation/text())) ]" > <xsl:value-of select="SubRegio';
-      t = t + 'n" /> <\/xsl:template> <xsl:template mode="locale-abbreviated" ';
-      t = t + 'match="row [ Country = \'USA\' and Region = \'California\' and ';
-      t = t + 'SubRegion != \'Unknown\' and boolean(Appellation/text()) ]" > <';
-      t = t + 'xsl:value-of select="concat(SubRegion,\', \',Appellation)" /> <';
-      t = t + '\/xsl:template> <xsl:template mode="locale-abbreviated" match="';
-      t = t + 'row [ Country = \'USA\' and Region != \'California\' and boolea';
-      t = t + 'n(Region/text()) ]" > <xsl:value-of select="substring(Locale,st';
-      t = t + 'ring-length(\'USA, \') + 1)" /> <\/xsl:template> <xsl:template ';
-      t = t + 'mode="locale-abbreviated" priority="1" match="row [ Locale = \'';
-      t = t + 'USA, California, Central Coast, Santa Rita Hills - Sta. Rita Hi';
-      t = t + 'lls\' ]" > <xsl:value-of select="\'Central Coast, Sta. Rita Hil';
-      t = t + 'ls\'" /> <\/xsl:template> <xsl:template mode="locale-abbreviate';
-      t = t + 'd" priority="1" match="row [ Country = \'France\' and Region = ';
-      t = t + '\'Languedoc Roussillon\' and SubRegion = \'Languedoc\' and bool';
-      t = t + 'ean(Appellation/text()) ]" > <xsl:value-of select="concat(\'Lan';
-      t = t + 'guedoc, \', Appellation)" /> <\/xsl:template> <xsl:template mod';
-      t = t + 'e="locale-abbreviated" priority="1" match="row [ Country = \'Fr';
-      t = t + 'ance\' and Region = \'Languedoc Roussillon\' and SubRegion = \'';
-      t = t + 'Roussillon\' and boolean(Appellation/text()) ]" > <xsl:value-of';
-      t = t + ' select="concat(\'Roussillon, \', Appellation)" /> <\/xsl:templ';
-      t = t + 'ate> <xsl:template mode="locale-abbreviated" priority="1" match';
-      t = t + '="row [ Country = \'France\' and Region = \'Champagne\' and boo';
-      t = t + 'lean(SubRegion/text()) and Appellation = \'Champagne\' ]" > <xs';
-      t = t + 'l:value-of select="concat(Region, \', \', SubRegion)" /> <\/xsl';
-      t = t + ':template> <xsl:template mode="locale-abbreviated" match="row [';
-      t = t + ' Country = \'France\' and Region != \'France\' ]" > <xsl:value-';
-      t = t + 'of select="substring(Locale,string-length(\'France, \') + 1)" /';
-      t = t + '> <\/xsl:template> <xsl:template mode="locale-abbreviated" matc';
-      t = t + 'h="row [ Country = \'Italy\' and boolean(SubRegion/text()) and ';
-      t = t + 'boolean(Appellation/text()) and concat(SubRegion, \' DOC\') = A';
-      t = t + 'ppellation ]" > <xsl:value-of select="concat(Country, \', \', R';
-      t = t + 'egion, \', \', Appellation)" /> <\/xsl:template> <xsl:template ';
-      t = t + 'mode="locale-abbreviated" match="row [ Locale = \'Italy, Piedmo';
-      t = t + 'nt, Monferrato, Barbera del Monferrato\' ]" > <xsl:value-of sel';
-      t = t + 'ect="\'Italy, Piedmont, Barbera del Monferrato\'" /> <\/xsl:tem';
-      t = t + 'plate> <xsl:template mode="locale-abbreviated" match="row [ Cou';
-      t = t + 'ntry = \'Australia\' and Region = \'South Australia\' ]" > <xsl';
-      t = t + ':value-of select="substring(Locale,string-length(\'Australia, ';
-      t = t + '\') + 1)" /> <\/xsl:template> <xsl:template mode="locale-abbrev';
-      t = t + 'iated" match="row"> <xsl:value-of select="Locale" /> <\/xsl:tem';
-      t = t + 'plate> <xsl:template match="@* | node()"> <xsl:copy> <xsl:apply';
-      t = t + '-templates select="@* | node()"/> <\/xsl:copy> <\/xsl:template>';
-      t = t + '<\/xsl:stylesheet>';
-      return t;
-    }
-
-    function getDataPresentationText() {
-      var t;
-      t = '<?xml version="1.0" encoding="utf-8"?><xsl:stylesheet version="1.0"';
-      t = t + ' xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="';
-      t = t + 'urn:schemas-microsoft-com:xslt" xmlns="http://www.w3.org/1999/x';
-      t = t + 'html" exclude-result-prefixes="msxsl" > <xsl:output method="htm';
-      t = t + 'l" indent="yes" encoding="utf-8" omit-xml-declaration="no" doct';
-      t = t + 'ype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="h';
-      t = t + 'ttp://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" /> <xsl:varia';
-      t = t + 'ble name="wines-in-stock" select="/cellartracker/list/row[Quant';
-      t = t + 'ity > 0 and Location != \'Wine Fridge - Tasting group\']" /> <x';
-      t = t + 'sl:key name="wines-by-type-group" match="/cellartracker/list/ro';
-      t = t + 'w[Quantity > 0 and Location != \'Wine Fridge - Tasting group\']';
-      t = t + '" use="TypeGroup" /> <xsl:key name="wines-by-varietal-group" ma';
-      t = t + 'tch="/cellartracker/list/row[Quantity > 0 and Location != \'Win';
-      t = t + 'e Fridge - Tasting group\']" use="VarietalGroup" /> <xsl:key na';
-      t = t + 'me="wines-by-id" match="/cellartracker/list/row[Quantity > 0 an';
-      t = t + 'd Location != \'Wine Fridge - Tasting group\']" use="iWine" /> ';
-      t = t + '<xsl:template match="/cellartracker"> <div class="wine-list"> <';
-      t = t + 'xsl:for-each select="$wines-in-stock[count(. | key(\'wines-by-t';
-      t = t + 'ype-group\', TypeGroup)[1]) = 1]"> <xsl:sort select="TypeGroupS';
-      t = t + 'ortOrder" data-type="number" /> <xsl:variable name="current-typ';
-      t = t + 'e-group" select="TypeGroup" /> <div class="type-group"> <xsl:fo';
-      t = t + 'r-each select="$wines-in-stock[TypeGroup = $current-type-group ';
-      t = t + 'and count(. | key(\'wines-by-varietal-group\', VarietalGroup)[1';
-      t = t + ']) = 1]"> <xsl:sort select="TypeGroupVarietalSortOrder" data-ty';
-      t = t + 'pe="number" /> <xsl:sort select="VarietalGroup" /> <xsl:variabl';
-      t = t + 'e name="current-varietal-group" select="VarietalGroup" /> <xsl:';
-      t = t + 'variable name="current-varietal-group-position" select="positio';
-      t = t + 'n()" /> <xsl:for-each select="$wines-in-stock[TypeGroup = $curr';
-      t = t + 'ent-type-group and VarietalGroup = $current-varietal-group and ';
-      t = t + 'count(. | key(\'wines-by-id\', iWine)[1]) = 1]"> <xsl:sort sele';
-      t = t + 'ct="SortProducer" /> <xsl:sort select="Wine" /> <xsl:choose> <x';
-      t = t + 'sl:when test="$current-varietal-group-position = 1 and position';
-      t = t + '() = 1"> <table class="avoid-break"> <tbody> <tr> <td> <div cla';
-      t = t + 'ss="type-heading"> <xsl:value-of select="TypeGroup" /> <\/div> ';
-      t = t + ' <div class="varietal-heading"> <xsl:value-of select="$current-';
-      t = t + 'varietal-group" /> <\/div> <xsl:apply-templates select="."/> <';
-      t = t + '\/td> <\/tr> <\/tbody> <\/table> <\/xsl:when> <xsl:when test="p';
-      t = t + 'osition() = 1"> <table class="avoid-break"> <tbody> <tr> <td> <';
-      t = t + 'div class="varietal-heading"> <xsl:value-of select="$current-va';
-      t = t + 'rietal-group" /> <\/div> <xsl:apply-templates select="."/> <\/t';
-      t = t + 'd> <\/tr> <\/tbody> <\/table> <\/xsl:when> <xsl:otherwise> <tab';
-      t = t + 'le class="avoid-break"> <tbody> <tr> <td> <xsl:apply-templates ';
-      t = t + 'select="."/> <\/td> <\/tr> <\/tbody> <\/table> <\/xsl:otherwise';
-      t = t + '> <\/xsl:choose> <\/xsl:for-each> <\/xsl:for-each> <\/div> <\/x';
-      t = t + 'sl:for-each> <div class="legend"> <div>&#x25CA; Could benefit f';
-      t = t + 'rom further cellaring<\/div> <div>&#x2302; House quality wine<';
-      t = t + '\/div> <\/div> <\/div> <\/xsl:template> <xsl:template match="ro';
-      t = t + 'w"> <div class="wine"> <span class="wine-name-and-locale"> <xsl';
-      t = t + ':choose> <xsl:when test="Location = \'Wine Fridge - Future\'"> ';
-      t = t + '<span class="wine-status-indicator wine-status-future"> <xsl:te';
-      t = t + 'xt>&#x25CA;<\/xsl:text> <\/span> <xsl:text> <\/xsl:text> <\/xsl';
-      t = t + ':when> <xsl:when test="Location = \'Wine Fridge - House\'"> <sp';
-      t = t + 'an class="wine-status-indicator wine-status-house"> <xsl:text>&';
-      t = t + '#x2302;<\/xsl:text> <\/span> <xsl:text> <\/xsl:text> <\/xsl:whe';
-      t = t + 'n> <\/xsl:choose> <xsl:if test="Vintage != \'1001\'"> <span cla';
-      t = t + 'ss="vintage"> <xsl:value-of select="Vintage"/> <\/span> <xsl:te';
-      t = t + 'xt> <\/xsl:text> <\/xsl:if> <span class="wine-name"> <xsl:value';
-      t = t + '-of select="Wine" /> <\/span> <xsl:text> <\/xsl:text> <span cla';
-      t = t + 'ss="locale"> <xsl:text>(<\/xsl:text> <xsl:call-template name="o';
-      t = t + 'utput-locale"> <xsl:with-param name="value" select="LocaleAbbre';
-      t = t + 'viated" /> <\/xsl:call-template> <xsl:text>)<\/xsl:text> <\/spa';
-      t = t + 'n> <\/span> <span class="bin-and-price-list"> <xsl:for-each sel';
-      t = t + 'ect="key(\'wines-by-id\', iWine)"> <xsl:sort select="Bin" data-';
-      t = t + 'type="number" /> <span class="bin"> <xsl:value-of select="Bin" ';
-      t = t + '/> <\/span> <xsl:if test="not(position() = last())"> <xsl:text>';
-      t = t + ', <\/xsl:text> <\/xsl:if> <xsl:if test="position() = last() and';
-      t = t + ' number(Price) > 0"> <span class="price-list-item"> <xsl:text>,';
-      t = t + ' <\/xsl:text> <\/span> <\/xsl:if> <\/xsl:for-each> <xsl:if test';
-      t = t + '="number(Price) > 0"> <span class="price price-list-item"> <xsl';
-      t = t + ':text>$<\/xsl:text> <xsl:value-of select="ceiling(number(Price)';
-      t = t + ')" /> <\/span> <\/xsl:if> <\/span> <\/div> <\/xsl:template> <xs';
-      t = t + 'l:template name="output-locale"> <xsl:param name="value" /> <xs';
-      t = t + 'l:variable name="first" select="substring-before($value, \', \'';
-      t = t + ')" /> <xsl:variable name="remaining" select="substring-after($v';
-      t = t + 'alue, \', \')" /> <xsl:choose> <xsl:when test="$value and not($';
-      t = t + 'first)"> <xsl:call-template name="output-locale-section"> <xsl:';
-      t = t + 'with-param name="value" select="$value" /> <\/xsl:call-template';
-      t = t + '> <\/xsl:when> <xsl:when test="$first"> <xsl:call-template name';
-      t = t + '="output-locale-section"> <xsl:with-param name="value" select="';
-      t = t + '$first" /> <\/xsl:call-template> <xsl:text>, <\/xsl:text> <\/xs';
-      t = t + 'l:when> <\/xsl:choose> <xsl:if test="$remaining"> <xsl:call-tem';
-      t = t + 'plate name="output-locale"> <xsl:with-param name="value" select';
-      t = t + '="$remaining" /> <\/xsl:call-template> <\/xsl:if> <\/xsl:templa';
-      t = t + 'te> <xsl:template name="output-locale-section"> <xsl:param name';
-      t = t + '="value" /> <xsl:variable name="first" select="substring-before';
-      t = t + '($value, \' \')" /> <xsl:variable name="remaining" select="subs';
-      t = t + 'tring-after($value, \' \')" /> <xsl:choose> <xsl:when test="$va';
-      t = t + 'lue and not($first)"> <xsl:value-of select="$value" /> <\/xsl:w';
-      t = t + 'hen> <xsl:when test="$first"> <xsl:value-of select="$first" /> ';
-      t = t + '<xsl:text disable-output-escaping="yes">&#160;<\/xsl:text> <\/x';
-      t = t + 'sl:when> <\/xsl:choose> <xsl:if test="$remaining"> <xsl:call-te';
-      t = t + 'mplate name="output-locale-section"> <xsl:with-param name="valu';
-      t = t + 'e" select="$remaining" /> <\/xsl:call-template> <\/xsl:if> <\/x';
-      t = t + 'sl:template> <\/xsl:stylesheet>';
-      return t;
-    }
-
     var ellipsis,
       queryString,
       dataCleanupProcessor,
       dataPresentationProcessor,
       progressAnimation,
+      rowDataArray,
       rawDataURL,
-      rawDataXML;
+      rawDataXML,
+      rowDataset;
     
     ellipsis = String.fromCharCode(8230);
+
+    rowDataArray = [];
 
     function el(id) {
       return document.getElementById(id);
@@ -497,6 +238,7 @@ var WineListTransform;
     }
         
     function updateLayout() {
+      return;
       var columnCount,
         i,
         length,
@@ -568,14 +310,6 @@ var WineListTransform;
       
       parser = new DOMParser();
 
-      dataCleanupXML = parser.parseFromString(getDataCleanupText(), "text/xml");
-      dataCleanupProcessor = new XSLTProcessor();
-      dataCleanupProcessor.importStylesheet(dataCleanupXML);
-
-      dataPresentationXML = parser.parseFromString(getDataPresentationText(), "text/xml");
-      dataPresentationProcessor = new XSLTProcessor();
-      dataPresentationProcessor.importStylesheet(dataPresentationXML);
-      
       window.onresize = (function () {
         var resizeTimeoutId;
         
@@ -586,13 +320,472 @@ var WineListTransform;
       })();
     }
 
+    function rowDataFromXML(row) {
+      var childIndex,
+        children,
+        childNode,
+        nodeText,
+        rowData;
+
+      rowData = {};
+      children = row.childNodes;
+      for (childIndex = 0; childIndex < children.length; childIndex++) {
+          childNode = children[childIndex];
+          if (childNode.nodeType === Node.ELEMENT_NODE) {
+              nodeText = childNode.textContent;
+              if (!!nodeText) {
+                rowData[childNode.localName] = nodeText;
+              }
+          }
+      }
+
+      return rowData;
+    }
+
+    var varietalRules = [
+      {t: 'Rosé', m: '*', vn: 'Rosé'},
+      {t: 'White', m: 'White Rhone Blend', vn: 'White Blend'},
+      {t: 'White', m: 'Pinot Gris-Pinot Blanc Blend', vn: 'White Blend'},
+      {t: 'White', m: 'Sémillon-Sauvignon Blanc Blend', vn: 'White Blend'},
+      {t: 'Red', m: 'Cabernet-Syrah Blend', vn: 'Red Blend'},
+      {t: 'Red', m: 'Red Bordeaux Blend', vn: 'Red Blend - Bordeaux'},
+      {t: 'Red', m: 'SuperTuscan Blend', vn: 'Red Blend - SuperTuscan'},
+      {t: 'White - Sparkling', m: '*', vn: 'Sparkling'},
+      {t: 'Rosé - Sparkling', m: '*', vn: 'Sparkling'},
+      {t: 'Red - Sparkling', m: '*', vn: 'Sparkling'},
+    ];
+
+    var localeRules = [
+      {c: 'USA', r: 'California', s: 'Unknown', rn: '*'},
+      {c: 'USA', r: 'California', s: '*', a: '', sn: '*'},
+      {c: 'USA', r: 'California', s: '*', a: '*', sn: '*', an: '*'},
+      {c: 'USA', r: '*', s: '*', a: '*', r: '*', sn: '*', an: '*'},
+      {c: 'France', r: 'Languedoc Roussillon', s: 'Languedoc', a: '*', sn: '*', an: '*'},
+      {c: 'France', r: 'Languedoc Roussillon', s: 'Roussillon', a: '*', sn: '*', an: '*'},
+      {c: 'France', r: 'Champagne', s: '*', a: 'Champagne', rn: '*', sn: '*'},
+      {c: 'France', r: 'France', s: '', a: '', cn: '*'},
+      {c: 'France', r: '*', s: '*', a: '*', rn: '*', sn: '*', an: '*'},
+      {c: 'Australia', r: 'South Australia', s: '*', a: '*', rn: '*', sn: '*', an: '*'}
+    ];
+
+    function prepareRow(rowData) {
+      var typeGroupMap;
+
+      //Map Type to TypeGroup
+      typeGroupMap = {};
+      typeGroupMap['White - Sparkling'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Rosé - Sparkling'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Red - Sparkling'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Rosé'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['White'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['White - Off-dry'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Red'] = 'Red Wines';
+      typeGroupMap['White - Sweet/Dessert'] = 'Dessert Wines';
+      typeGroupMap['Rosé - Sweet/Dessert'] = 'Dessert Wines';
+      typeGroupMap['Red - Sweet/Dessert'] = 'Dessert Wines';
+      typeGroupMap['White - Fortified'] = 'Other';
+      typeGroupMap['Red - Fortified'] = 'Other';
+      typeGroupMap['Fruit/Vegetable Wine'] = 'Other';
+      typeGroupMap['Sake'] = 'Other';
+      typeGroupMap['Spirits'] = 'Other';
+      typeGroupMap['Liqueur'] = 'Other';
+      typeGroupMap['Non-alcoholic'] = 'Other';
+
+      rowData['TypeGroup'] = typeGroupMap[rowData['Type']] || rowData['Type'];
+
+      //Map Varietal to VarietalGroup
+      var type,
+        varietalGroup,
+        varietalRule,
+        varietalRuleIndex,
+        masterVarietal;
+
+      type = rowData['Type'];
+      masterVarietal = rowData['MasterVarietal'];
+
+      for (varietalRuleIndex = 0; varietalRuleIndex < varietalRules.length; varietalRuleIndex++) {
+        varietalRule = varietalRules[varietalRuleIndex];
+        if (varietalRule.t !== '*' && varietalRule.t !== type) {
+          varietalRule = null;
+          continue;
+        }
+        if (varietalRule.m !== '*' && varietalRule.m !== masterVarietal) {
+          varietalRule = null;
+          continue;
+        }
+
+        break;
+      }
+
+      if (varietalRule) {
+        rowData['VarietalGroup'] = varietalRule.vn;
+
+      } else {
+        rowData['VarietalGroup'] = masterVarietal;
+      }
+
+      //Map Locale to LocaleAbbreviated
+      var appellation,
+        country,
+        localeAbbreviated,
+        localeRule,
+        localeRuleIndex,
+        region,
+        subRegion;
+
+      country = rowData['Country'];
+      region = rowData['Region'];
+      subRegion = rowData['SubRegion'];
+      appellation = rowData['Appellation'];
+
+      for (localeRuleIndex = 0; localeRuleIndex < localeRules.length; localeRuleIndex++) {
+        localeRule = localeRules[localeRuleIndex];
+        if (localeRule.c !== '*' && localeRule.c !== country) {
+          localeRule = null;
+          continue;
+        }
+        if (localeRule.r !== '*' && localeRule.r !== region) {
+          localeRule = null;
+          continue;
+        }
+        if (localeRule.s !== '*' && localeRule.s !== subRegion) {
+          localeRule = null;
+          continue;
+        }
+        if (localeRule.a !== '*' && localeRule.a !== appellation) {
+          localeRule = null;
+          continue;
+        }
+
+        break;
+      }
+
+      if (localeRule) {
+        localeAbbreviated = '';
+
+        if (localeRule.cn === '*') {
+          if (country) {
+            localeAbbreviated += country;
+          }
+        } else if (localeRule.cn) {
+          localeAbbreviated += localeRule.cn;
+        }
+
+        if (localeRule.rn === '*') {
+          if (region) {
+            localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + region;
+          }
+        } else if (localeRule.rn) {
+          localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + localeRule.rn;
+        }
+
+        if (localeRule.sn === '*') {
+          if (subRegion) {
+            localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + subRegion;
+          }
+        } else if (localeRule.sn) {
+          localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + localeRule.sn;
+        }
+
+        if (localeRule.an === '*') {
+          if (appellation) {
+            localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + appellation;
+          }
+        } else if (localeRule.an) {
+          localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + localeRule.an;
+        }
+
+        rowData['LocaleAbbreviated'] = localeAbbreviated;
+
+      } else {
+        rowData['LocaleAbbreviated'] = rowData['Locale'];
+      }
+
+      //Move the Bin to an array for normalization to handle wines in multiple bins
+      if (!Array.isArray(rowData['BinList'])) {
+        rowData['BinList'] = [rowData['Bin']];
+      }
+    }
+
+    function mergeRows(targetRow, sourceRow) {
+      //Combine bins into a single array of values.
+      //The bin array may include undefined items for some
+      // wines, but the length of the array still indicates
+      // the quantity.
+      targetRow['BinList'].push(sourceRow['Bin']);
+    }
+
+    function mergeRowIntoDatasets(rowData) {
+      var existingRow;
+
+      existingRow = rowDataset[rowData['iWine']];
+      if (!existingRow) {
+        prepareRow(rowData);
+        rowDataset[rowData['iWine']] = rowData;
+        rowDataArray.push(rowData);
+      } else {
+        mergeRows(existingRow, rowData);
+      }
+
+    }
+
+    function parseRawData() {
+      var root,
+          row,
+          rowData,
+          rowElements,
+          rowIndex;
+
+      root = rawDataXML.documentElement;
+      rowElements = root.getElementsByTagName("row");
+
+      rowDataset = {};
+      if (rowElements) {
+          for (rowIndex = 0; rowIndex < rowElements.length; rowIndex++) {
+            row = rowElements[rowIndex];
+            rowData = rowDataFromXML(row);
+            mergeRowIntoDatasets(rowData);
+          }
+      }
+    }
+
+    function arrayMap(a, mapping) {
+      var result;
+      result = mapping.indexOf(a)
+      if (result === -1) {
+        result = mapping.length;
+      }
+      return result;
+    }
+
+    function compare(a, b, valueMapFunction) {
+      var aValue, bValue;
+      aValue = valueMapFunction.call(this, a);
+      bValue = valueMapFunction.call(this, b);
+      return aValue - bValue;
+    }
+
+    function mapType(rowData) {
+      var typeOrder = [
+        'Sparkling, Rosé, and White Wines',
+        'Red Wines',
+        'Dessert Wines',
+        'Other'
+      ]
+
+      return arrayMap(rowData['TypeGroup'], typeOrder);
+    }
+
+    function compareType(a, b) {
+      return compare(a, b, mapType);
+    }
+
+    function mapVarietalType(rowData) {
+      var varietalTypeMap = {};
+      varietalTypeMap['White - Sparkling'] = 1;
+      varietalTypeMap['Rosé - Sparkling'] = 1;
+      varietalTypeMap['Red - Sparkling'] = 1;
+      varietalTypeMap['Rosé'] = 2;
+      varietalTypeMap['White'] = 3;
+      varietalTypeMap['White - Off-dry'] = 3;
+      varietalTypeMap['Red'] = 4;
+      varietalTypeMap['White - Sweet/Dessert'] = 5;
+      varietalTypeMap['Rosé - Sweet/Dessert'] = 5;
+      varietalTypeMap['Red - Sweet/Dessert'] = 6;
+      varietalTypeMap['White - Fortified'] = 7;
+      varietalTypeMap['Red - Fortified'] = 8;
+      varietalTypeMap['Fruit/Vegetable Wine'] = 9;
+      varietalTypeMap['Sake'] = 9;
+      varietalTypeMap['Spirits'] = 9;
+      varietalTypeMap['Liqueur'] = 9;
+      varietalTypeMap['Non-alcoholic'] = 9;
+
+      return varietalTypeMap[rowData['Type']];
+    }
+
+    function compareVarietalType(a, b) {
+      return compare(a, b, mapVarietalType);
+    }
+
+    function compareValues(a, b, key) {
+      return a[key].localeCompare(b[key]);
+    }
+
+    function renderLegend() {
+      var legendEl,
+          legendItemEl;
+
+      legendEl = $('<div>').addClass('legend');
+      legendItemEl = $('<div>')
+        .text('◊ Could benefit from further cellaring')
+        .appendTo(legendEl);
+
+      return legendEl;
+    }
+
+    function compareWineRows(a, b) {
+      var result;
+
+      result = compareType(a, b);
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareVarietalType(a, b);
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareValues(a, b, 'VarietalGroup');
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareValues(a, b, 'SortProducer');
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareValues(a, b, 'Wine');
+      if (result !== 0 ) {
+        return result;
+      }
+
+      return result;
+    }
+
+    function renderWineList() {
+      var binCount,
+        binEl,
+        binIndex,
+        currentBinList,
+        i,
+        previousTypeGroup,
+        previousVarietalGroup,
+        price,
+        typeGroup,
+        varietalGroup,
+        wineEl,
+        wineGroupEl,
+        wineListEl,
+        wineWrapperEl;
+
+      wineListEl = $('<div>').addClass('wine-list');
+
+      rowDataArray.sort(compareWineRows);
+
+      for (i = 0; i < rowDataArray.length; i++) {
+        wineEl = $('<td>');
+        wineWrapperEl = $('<table>')
+          .append(
+            $('<tbody>')
+              .append(
+                $('<tr>')
+                  .append(
+                    wineEl
+                  )
+                )
+            )
+          .addClass('avoid-break');
+
+        typeGroup = rowDataArray[i]['TypeGroup'];
+        if (previousTypeGroup !== typeGroup) {
+          previousTypeGroup = typeGroup;
+
+          wineGroupEl = $('<div>')
+            .addClass('type-group')
+            .appendTo(wineListEl);
+
+          $('<div>')
+            .addClass('type-heading')
+            .text(typeGroup)
+            .appendTo(wineEl);
+        }
+
+        varietalGroup = rowDataArray[i]['VarietalGroup'];
+        if (previousVarietalGroup !== varietalGroup) {
+          $('<div>')
+            .addClass('varietal-heading')
+            .text(varietalGroup)
+            .appendTo(wineEl);
+          previousVarietalGroup = varietalGroup;
+        }
+
+        nameAndLocale = $('<span>').addClass('wine-name-and-locale');
+
+        if (rowDataArray[i]['Vintage'] !== '1001') {
+          $('<span>')
+            .addClass('vintage')
+            .text(rowDataArray[i]['Vintage'])
+            .appendTo(nameAndLocale)
+            .after(' ');
+        }
+
+        $('<span>')
+          .addClass('wine-name')
+          .text(rowDataArray[i]['Wine'])
+          .appendTo(nameAndLocale)
+          .after(' ');
+
+        //TODO: Replace some locale spaces with &nbsp;
+        $('<span>')
+          .addClass('locale')
+          .text('(' + rowDataArray[i]['LocaleAbbreviated'] + ')')
+          .appendTo(nameAndLocale);
+
+        binAndPriceList = $('<span>').addClass('bin-and-price-list');
+
+        currentBinList = rowDataArray[i]['BinList'];
+        binCount = currentBinList.length;
+
+        for (binIndex = 0; binIndex < binCount; binIndex++) {
+          binEl = $('<span>')
+            .addClass('bin')
+            .text(currentBinList[binIndex])
+            .appendTo(binAndPriceList);
+
+          if (binIndex !== (binCount - 1)) {
+            binEl.after(', ');
+          }
+        }
+
+        price = Math.ceil(parseFloat(rowDataArray[i]['Price']));
+
+        if (binCount > 0 && price !== 0) {
+          $('<span>')
+            .addClass('price-list-item')
+            .text(", ")
+            .appendTo(binAndPriceList);
+        }
+
+        if (price !== 0) {
+          $('<span>')
+            .addClass('price')
+            .addClass('price-list-item')
+            .text('$' + price)
+            .appendTo(binAndPriceList);
+        }
+
+        $('<div>')
+          .addClass('wine')
+          .append(nameAndLocale)
+          .append(binAndPriceList)
+          .appendTo(wineEl);
+
+        wineGroupEl.append(wineWrapperEl);
+      }
+
+      wineListEl.append(renderLegend());
+
+      return wineListEl;
+    }
+
     function processRawData() {
-      var cleanDataXML,
-          presentationHTML;
+      var wineListEl;
           
-      cleanDataXML = dataCleanupProcessor.transformToDocument(rawDataXML);
-      presentationHTML = dataPresentationProcessor.transformToFragment(cleanDataXML, document);
-      el('wine-list-wrapper').appendChild(presentationHTML);
+      parseRawData();
+      wineListEl = renderWineList();
+      $('#wine-list-wrapper').append(wineListEl);
     }
 
     function getResponseErrorMessage(response) {
@@ -624,7 +817,7 @@ var WineListTransform;
     }
 
     function loadRawDataUsingXHR(credentials, callback) {
-      rawDataURL = "http://www.cellartracker.com/xlquery.asp?table=List&Location=1&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
+      rawDataURL = "http://www.cellartracker.com/xlquery.asp?table=Inventory&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
       getXMLAsyncXHR(rawDataURL, function (response) {
         rawDataXML = response;
         
