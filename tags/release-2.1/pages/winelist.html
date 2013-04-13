@@ -1,0 +1,1313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Wine List</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+
+    <script type="text/javascript">
+      //<![CDATA[
+var WineListTransform;
+
+(function () {
+
+    var ellipsis,
+      queryString,
+      dataCleanupProcessor,
+      dataPresentationProcessor,
+      nonBreakingSpace,
+      progressAnimation,
+      rowDataArray,
+      rawDataURL,
+      rawDataXML,
+      rowDataset;
+    
+    ellipsis = String.fromCharCode(8230);
+    nonBreakingSpace = String.fromCharCode(160);
+
+    rowDataArray = [];
+
+    function el(id) {
+      return document.getElementById(id);
+    }
+
+    function getSingleElementByClassName(el, names) {
+      var list;
+      
+      list = el.getElementsByClassName(names);
+      if (list.length === 1) {
+        return list[0];
+      }
+    }
+
+    function setElementText(id, text) {      
+      var element;
+
+      element = el(id);
+      
+      while (element.firstChild !== null) {
+        element.removeChild(element.firstChild);
+      }
+      element.appendChild(document.createTextNode(text));
+    }
+    
+    function findClass(elementClass, className) {
+      var currentClasses,
+        existingClassIndex,
+        i,
+        length;
+
+      currentClasses = elementClass.split(/\s+/);
+      length = currentClasses.length;
+      for (i = 0; i < length; i++) {
+        if (currentClasses[i].toLowerCase() === className.toLowerCase()) {
+          existingClassIndex = i;
+          break;
+        }
+      }
+      
+      return {
+        currentClasses: currentClasses,
+        existingClassIndex: existingClassIndex
+      };
+    }
+    
+    function addClass(id, className) {
+      var classFindResult,
+        element;
+
+      element = el(id);
+      classFindResult = findClass(element.className, className);
+      
+      if (typeof classFindResult.existingClassIndex === 'undefined') {
+        element.className += ' ' + className;
+      }
+    }
+    
+    function removeClass(id, className) {
+      var classFindResult,
+        element;
+
+      element = el(id);
+      classFindResult = findClass(element.className, className);
+      
+      if (typeof classFindResult.existingClassIndex !== 'undefined') {
+        classFindResult.currentClasses.splice(classFindResult.existingClassIndex, 1);
+        element.className = classFindResult.currentClasses.join(' ');
+      }
+    }
+    
+    function setProgressStatus(text) {
+      setElementText('progress-status', text);
+    }
+
+    function setBlockElementVisible(id, visible) {
+      var element;
+
+      element = el(id);
+
+      if (visible) {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
+    }
+    
+    function setMainContentVisible(visible) {
+      setBlockElementVisible('main', visible);
+    }
+
+    function setProgressVisible(visible) {
+      setBlockElementVisible('progress', visible);
+    }
+
+    function setWineListVisible(visible) {
+      setBlockElementVisible('wine-list-wrapper', visible);
+    }
+
+    function setSpinnerCompleted(completed) {
+      var operation;
+      
+      if (completed) {
+        operation = addClass;
+      } else {
+        operation = removeClass;
+      }
+      
+      operation.call(this, 'spinner', 'completed');
+    }
+
+    function showMainContent() {
+      setMainContentVisible(true);
+      setProgressVisible(false);
+      setWineListVisible(false);
+    }
+    
+    function showProgress() {
+      setSpinnerCompleted(false);
+    
+      setMainContentVisible(false);
+      setProgressVisible(true);
+      setWineListVisible(false);
+    }
+
+    function showWineList() {
+      setMainContentVisible(false);
+      setProgressVisible(false);
+      setWineListVisible(true);
+    }
+
+    function getXMLAsyncXHR(url, callback) {
+      var req;
+
+      req = new XMLHttpRequest();
+
+      req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+          if (!(req.status == 200 || req.status == 0)) {
+            callback.call(this, null);
+          } else {
+            callback.call(this, req.responseXML);
+          }
+        }
+      };
+
+      req.onerror = function() {
+        alert("An error occured while accessing CellarTracker.");
+      };
+
+      req.open('GET', url, true);
+      req.send(null);
+    }
+    
+    function getRawQueryString() {
+      var result,
+          queryString,
+          re,
+          m;
+
+      result = {};
+      queryString = location.search.substring(1);
+      re = /([^&=]+)=([^&]*)/g;
+
+      while (m = re.exec(queryString)) {
+        result[decodeURIComponent(m[1]).toLowerCase()] = m[2];
+      }
+
+      return result;
+    }
+
+    function getIsTwoColumnLayoutFromQueryString() {
+      return queryString["columns"] == 2;
+    }
+
+    function getHidePricesFromQueryString() {
+      var hidePricesParam;
+      
+      hidePricesParam = queryString['hideprices'];
+      
+      if (typeof hidePricesParam !== "undefined") {
+        if (hidePricesParam.toLowerCase() === 'true' || hidePricesParam === '1') {
+          return true;
+        }
+      }
+      
+      return false;
+    }
+
+    function getCredentialsFromQueryString() {
+      return {
+        user: queryString["user"],
+        password: queryString["password"]
+      };
+    }
+
+    function getCredentialsFromForm() {
+      return {
+        user: el('user-input').value,
+        password: el('password-input').value
+      };
+    }
+    
+    function computeNeededWineListWidth(parentEl, classNames, percent) {
+      var el;
+      
+      el = getSingleElementByClassName(parentEl, classNames);
+      
+      if (el && el.scrollWidth > el.offsetWidth) {
+        // 4px for table spacing
+        return Math.ceil(el.scrollWidth / percent) + 4;
+      } else {
+        return 0;
+      }
+    }
+        
+    function updateLayout() {
+      var columnCount,
+        i,
+        length,
+        wineMaxWidth,
+        wineListEl,
+        wineListWrapperEl,
+        wineListMinWidth,
+        wineNodes;
+        
+      wineListWrapperEl = el('wine-list-wrapper');
+      if (wineListWrapperEl) {
+        wineListEl = getSingleElementByClassName(wineListWrapperEl, 'wine-list');
+      }
+      
+      if (wineListEl) {
+        wineNodes = wineListEl.getElementsByClassName('wine');
+        length = wineNodes.length;
+        wineMaxWidth = 0;
+        
+        for (i = 0; i < length; i++) {
+          // 78% width from CSS
+          wineMaxWidth = Math.max(wineMaxWidth, computeNeededWineListWidth(wineNodes[i], 'wine-name-and-locale', 0.78));
+
+          // 20% width plus 2% padding from CSS
+          wineMaxWidth = Math.max(wineMaxWidth, computeNeededWineListWidth(wineNodes[i], 'bin-and-price-list', 0.22));
+          
+          // If the chlid elements don't take up the full width, it doesn't matter.
+          //// The child elements may not take up the full width due to CSS rounding
+          //wineMaxWidth = Math.max(wineMaxWidth, wineNodes[i].offsetWidth + 4);
+        }
+        
+        columnCount = (getIsTwoColumnLayoutFromQueryString() ? 2 : 3);
+
+        //Set .wine-list min-width =
+        //  (maximum width of .wine) * (column count of 3)
+        //  + (column gap of 20) * ((column count of 3) - 1)
+        wineListMinWidth = (wineMaxWidth * columnCount) + (20 * (columnCount - 1));        
+        
+        wineListMinWidth = Math.round(wineListMinWidth); //Make sure we didn't end up with a floating point number
+        
+        //HACK: I'm not sure why, but in Firefox the computed wineListMinWidth seems to always
+        // be 3px bigger than the offsetWidth. This could be related to the 4px of table spacing.
+        // Whithout this correction, resizing the page larger makes the minWidth grow.
+        // In Chrome the wine locale is cut off by about one pixel, which may be related to this adjustment.
+        wineListMinWidth -= 3;
+        
+        if (wineListEl.offsetWidth < wineListMinWidth) {
+          //console.log('Updating wineListEl.style.minWidth. wineListEl.offsetWidth: ' + wineListEl.offsetWidth + ' wineListMinWidth: ' + wineListMinWidth);
+          wineListEl.style.minWidth = wineListMinWidth + 'px';
+        }
+      }
+      
+    }
+
+    function init() {
+      var dataCleanupXML,
+        dataPresentationXML,
+        parser;
+
+      queryString = getRawQueryString();
+      
+      if (getHidePricesFromQueryString()) {
+        addClass('wine-list-wrapper', 'hide-prices');
+      }
+
+      if (getIsTwoColumnLayoutFromQueryString()) {
+        addClass('wine-list-wrapper', 'two-column');
+      }
+      
+      parser = new DOMParser();
+
+      window.onresize = (function () {
+        var resizeTimeoutId;
+        
+        return function () {
+          window.clearTimeout(resizeTimeoutId);
+          resizeTimeoutId = window.setTimeout(updateLayout, 10);
+        };
+      })();
+    }
+
+    function rowDataFromXML(row) {
+      var childIndex,
+        children,
+        childNode,
+        nodeText,
+        rowData;
+
+      rowData = {};
+      children = row.childNodes;
+      for (childIndex = 0; childIndex < children.length; childIndex++) {
+          childNode = children[childIndex];
+          if (childNode.nodeType === Node.ELEMENT_NODE) {
+              nodeText = childNode.textContent;
+              if (!!nodeText) {
+                rowData[childNode.localName] = nodeText;
+              }
+          }
+      }
+
+      return rowData;
+    }
+
+    var varietalRules = [
+      {t: 'Rosé', m: '*', vn: 'Rosé'},
+      {t: 'White', m: 'White Rhone Blend', vn: 'White Blend'},
+      {t: 'White', m: 'Pinot Gris-Pinot Blanc Blend', vn: 'White Blend'},
+      {t: 'White', m: 'Sémillon-Sauvignon Blanc Blend', vn: 'White Blend'},
+      {t: 'Red', m: 'Cabernet-Syrah Blend', vn: 'Red Blend'},
+      {t: 'Red', m: 'Red Bordeaux Blend', vn: 'Red Blend - Bordeaux'},
+      {t: 'Red', m: 'SuperTuscan Blend', vn: 'Red Blend - SuperTuscan'},
+      {t: 'White - Sparkling', m: '*', vn: 'Sparkling'},
+      {t: 'Rosé - Sparkling', m: '*', vn: 'Sparkling'},
+      {t: 'Red - Sparkling', m: '*', vn: 'Sparkling'},
+    ];
+
+    var localeRules = [
+      {c: 'USA', r: 'California', s: 'Unknown', rn: '*'},
+      {c: 'USA', r: 'California', s: '*', a: '', sn: '*'},
+      {c: 'USA', r: 'California', s: '*', a: '*', sn: '*', an: '*'},
+      {c: 'USA', r: '*', s: '*', a: '*', r: '*', sn: '*', an: '*'},
+      {c: 'France', r: 'Languedoc Roussillon', s: 'Languedoc', a: '*', sn: '*', an: '*'},
+      {c: 'France', r: 'Languedoc Roussillon', s: 'Roussillon', a: '*', sn: '*', an: '*'},
+      {c: 'France', r: 'Champagne', s: '*', a: 'Champagne', rn: '*', sn: '*'},
+      {c: 'France', r: 'France', s: '', a: '', cn: '*'},
+      {c: 'France', r: '*', s: '*', a: '*', rn: '*', sn: '*', an: '*'},
+      {c: 'Australia', r: 'South Australia', s: '*', a: '*', rn: '*', sn: '*', an: '*'}
+    ];
+
+    function prepareRow(rowData) {
+      var typeGroupMap;
+
+      //Map Type to TypeGroup
+      typeGroupMap = {};
+      typeGroupMap['White - Sparkling'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Rosé - Sparkling'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Red - Sparkling'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Rosé'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['White'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['White - Off-dry'] = 'Sparkling, Rosé, and White Wines';
+      typeGroupMap['Red'] = 'Red Wines';
+      typeGroupMap['White - Sweet/Dessert'] = 'Dessert Wines';
+      typeGroupMap['Rosé - Sweet/Dessert'] = 'Dessert Wines';
+      typeGroupMap['Red - Sweet/Dessert'] = 'Dessert Wines';
+      typeGroupMap['White - Fortified'] = 'Other';
+      typeGroupMap['Red - Fortified'] = 'Other';
+      typeGroupMap['Fruit/Vegetable Wine'] = 'Other';
+      typeGroupMap['Sake'] = 'Other';
+      typeGroupMap['Spirits'] = 'Other';
+      typeGroupMap['Liqueur'] = 'Other';
+      typeGroupMap['Non-alcoholic'] = 'Other';
+
+      rowData['TypeGroup'] = typeGroupMap[rowData['Type']] || rowData['Type'];
+
+      //Map Varietal to VarietalGroup
+      var type,
+        varietalGroup,
+        varietalRule,
+        varietalRuleIndex,
+        masterVarietal;
+
+      type = rowData['Type'];
+      masterVarietal = rowData['MasterVarietal'];
+
+      for (varietalRuleIndex = 0; varietalRuleIndex < varietalRules.length; varietalRuleIndex++) {
+        varietalRule = varietalRules[varietalRuleIndex];
+        if (varietalRule.t !== '*' && varietalRule.t !== type) {
+          varietalRule = null;
+          continue;
+        }
+        if (varietalRule.m !== '*' && varietalRule.m !== masterVarietal) {
+          varietalRule = null;
+          continue;
+        }
+
+        break;
+      }
+
+      if (varietalRule) {
+        rowData['VarietalGroup'] = varietalRule.vn;
+
+      } else {
+        rowData['VarietalGroup'] = masterVarietal;
+      }
+
+      //Map Locale to LocaleAbbreviated
+      var appellation,
+        country,
+        localeAbbreviated,
+        localeRule,
+        localeRuleIndex,
+        region,
+        subRegion;
+
+      country = rowData['Country'];
+      region = rowData['Region'];
+      subRegion = rowData['SubRegion'];
+      appellation = rowData['Appellation'];
+
+      for (localeRuleIndex = 0; localeRuleIndex < localeRules.length; localeRuleIndex++) {
+        localeRule = localeRules[localeRuleIndex];
+        if (localeRule.c !== '*' && localeRule.c !== country) {
+          localeRule = null;
+          continue;
+        }
+        if (localeRule.r !== '*' && localeRule.r !== region) {
+          localeRule = null;
+          continue;
+        }
+        if (localeRule.s !== '*' && localeRule.s !== subRegion) {
+          localeRule = null;
+          continue;
+        }
+        if (localeRule.a !== '*' && localeRule.a !== appellation) {
+          localeRule = null;
+          continue;
+        }
+
+        break;
+      }
+
+      if (localeRule) {
+        localeAbbreviated = '';
+
+        if (localeRule.cn === '*') {
+          if (country) {
+            localeAbbreviated += country;
+          }
+        } else if (localeRule.cn) {
+          localeAbbreviated += localeRule.cn;
+        }
+
+        if (localeRule.rn === '*') {
+          if (region) {
+            localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + region;
+          }
+        } else if (localeRule.rn) {
+          localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + localeRule.rn;
+        }
+
+        if (localeRule.sn === '*') {
+          if (subRegion) {
+            localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + subRegion;
+          }
+        } else if (localeRule.sn) {
+          localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + localeRule.sn;
+        }
+
+        if (localeRule.an === '*') {
+          if (appellation) {
+            localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + appellation;
+          }
+        } else if (localeRule.an) {
+          localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + localeRule.an;
+        }
+
+        rowData['LocaleAbbreviated'] = localeAbbreviated;
+
+      } else {
+        rowData['LocaleAbbreviated'] = rowData['Locale'];
+      }
+
+      //Move the Bin to an array for normalization to handle wines in multiple bins
+      if (!Array.isArray(rowData['BinList'])) {
+        rowData['BinList'] = [];
+        if (typeof rowData['Bin'] !== 'undefined') {
+          rowData['BinList'].push(rowData['Bin']);
+        }
+      }
+    }
+
+    function mergeRows(targetRow, sourceRow) {
+      //Combine bins into a single array of values.
+      //The bin array may include undefined items for some
+      // wines, but the length of the array still indicates
+      // the quantity.
+      if (typeof sourceRow['Bin'] !== 'undefined') {
+        targetRow['BinList'].push(sourceRow['Bin']);
+      }
+    }
+
+    function mergeRowIntoDatasets(rowData) {
+      var existingRow;
+
+      existingRow = rowDataset[rowData['iWine']];
+      if (!existingRow) {
+        prepareRow(rowData);
+        rowDataset[rowData['iWine']] = rowData;
+        rowDataArray.push(rowData);
+      } else {
+        mergeRows(existingRow, rowData);
+      }
+
+    }
+
+    function parseRawData() {
+      var root,
+          row,
+          rowData,
+          rowElements,
+          rowIndex;
+
+      if (rawDataXML) {
+        root = rawDataXML.documentElement;
+      }
+
+      if (root) {
+        rowElements = root.getElementsByTagName("row");
+      }
+
+      rowDataset = {};
+      if (rowElements) {
+          for (rowIndex = 0; rowIndex < rowElements.length; rowIndex++) {
+            row = rowElements[rowIndex];
+            rowData = rowDataFromXML(row);
+            mergeRowIntoDatasets(rowData);
+          }
+      }
+    }
+
+    function arrayMap(a, mapping) {
+      var result;
+      result = mapping.indexOf(a)
+      if (result === -1) {
+        result = mapping.length;
+      }
+      return result;
+    }
+
+    function compare(a, b, valueMapFunction) {
+      var aValue, bValue;
+      aValue = valueMapFunction.call(this, a);
+      bValue = valueMapFunction.call(this, b);
+      return aValue - bValue;
+    }
+
+    function mapType(rowData) {
+      var typeOrder = [
+        'Sparkling, Rosé, and White Wines',
+        'Red Wines',
+        'Dessert Wines',
+        'Other'
+      ]
+
+      return arrayMap(rowData['TypeGroup'], typeOrder);
+    }
+
+    function compareType(a, b) {
+      return compare(a, b, mapType);
+    }
+
+    function mapVarietalType(rowData) {
+      var varietalTypeMap = {};
+      varietalTypeMap['White - Sparkling'] = 1;
+      varietalTypeMap['Rosé - Sparkling'] = 1;
+      varietalTypeMap['Red - Sparkling'] = 1;
+      varietalTypeMap['Rosé'] = 2;
+      varietalTypeMap['White'] = 3;
+      varietalTypeMap['White - Off-dry'] = 3;
+      varietalTypeMap['Red'] = 4;
+      varietalTypeMap['White - Sweet/Dessert'] = 5;
+      varietalTypeMap['Rosé - Sweet/Dessert'] = 5;
+      varietalTypeMap['Red - Sweet/Dessert'] = 6;
+      varietalTypeMap['White - Fortified'] = 7;
+      varietalTypeMap['Red - Fortified'] = 8;
+      varietalTypeMap['Fruit/Vegetable Wine'] = 9;
+      varietalTypeMap['Sake'] = 9;
+      varietalTypeMap['Spirits'] = 9;
+      varietalTypeMap['Liqueur'] = 9;
+      varietalTypeMap['Non-alcoholic'] = 9;
+
+      return varietalTypeMap[rowData['Type']];
+    }
+
+    function compareVarietalType(a, b) {
+      return compare(a, b, mapVarietalType);
+    }
+
+    function compareValues(a, b, key) {
+      return a[key].localeCompare(b[key]);
+    }
+
+    function renderLegend() {
+      var legendEl,
+          legendItemEl;
+
+      //TODO: Replace the legend with a better rendering of location and
+      // grouping information.
+
+      legendEl = $('<div>').addClass('legend');
+      legendItemEl = $('<div>')
+        .text('◊ Could benefit from further cellaring')
+        .appendTo(legendEl);
+
+      return legendEl;
+    }
+
+    function compareWineRows(a, b) {
+      var result;
+
+      result = compareType(a, b);
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareVarietalType(a, b);
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareValues(a, b, 'VarietalGroup');
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareValues(a, b, 'SortProducer');
+      if (result !== 0 ) {
+        return result;
+      }
+
+      result = compareValues(a, b, 'Wine');
+      if (result !== 0 ) {
+        return result;
+      }
+
+      return result;
+    }
+
+    function renderWineList() {
+      var binCount,
+        binEl,
+        binIndex,
+        currentBinList,
+        i,
+        localeAbbreviated,
+        previousTypeGroup,
+        previousVarietalGroup,
+        price,
+        typeGroup,
+        varietalGroup,
+        wineEl,
+        wineGroupEl,
+        wineListEl,
+        wineWrapperEl;
+
+      wineListEl = $('<div>').addClass('wine-list');
+
+      rowDataArray.sort(compareWineRows);
+
+      for (i = 0; i < rowDataArray.length; i++) {
+        wineEl = $('<td>');
+        wineWrapperEl = $('<table>')
+          .append(
+            $('<tbody>')
+              .append(
+                $('<tr>')
+                  .append(
+                    wineEl
+                  )
+                )
+            )
+          .addClass('avoid-break');
+
+        typeGroup = rowDataArray[i]['TypeGroup'];
+        if (previousTypeGroup !== typeGroup) {
+          previousTypeGroup = typeGroup;
+
+          wineGroupEl = $('<div>')
+            .addClass('type-group')
+            .appendTo(wineListEl);
+
+          $('<div>')
+            .addClass('type-heading')
+            .text(typeGroup)
+            .appendTo(wineEl);
+        }
+
+        varietalGroup = rowDataArray[i]['VarietalGroup'];
+        if (previousVarietalGroup !== varietalGroup) {
+          $('<div>')
+            .addClass('varietal-heading')
+            .text(varietalGroup)
+            .appendTo(wineEl);
+          previousVarietalGroup = varietalGroup;
+        }
+
+        nameAndLocale = $('<span>').addClass('wine-name-and-locale');
+
+        if (rowDataArray[i]['Vintage'] !== '1001') {
+          $('<span>')
+            .addClass('vintage')
+            .text(rowDataArray[i]['Vintage'])
+            .appendTo(nameAndLocale)
+            .after(' ');
+        }
+
+        $('<a>')
+          .addClass('wine-name')
+          .attr('href', 'https://www.cellartracker.com/wine.asp?iWine=' + rowDataArray[i]['iWine'])
+          .text(rowDataArray[i]['Wine'])
+          .appendTo(nameAndLocale)
+          .after(' ');
+
+        localeAbbreviated = rowDataArray[i]['LocaleAbbreviated'].replace(/(,)? /g, function($0, $1) { return $1 ? $0 : nonBreakingSpace; });
+        $('<span>')
+          .addClass('locale')
+          .text('(' + localeAbbreviated + ')')
+          .appendTo(nameAndLocale);
+
+        if (rowDataArray[i]['BottleNote']) {
+          $('<span>')
+            .addClass('bottle-note')
+            .text(rowDataArray[i]['BottleNote'])
+            .appendTo(nameAndLocale)
+            .before('<br>');
+        }
+
+        binAndPriceList = $('<span>').addClass('bin-and-price-list');
+
+        currentBinList = rowDataArray[i]['BinList'];
+        binCount = currentBinList.length;
+
+        for (binIndex = 0; binIndex < binCount; binIndex++) {
+          binEl = $('<a>')
+            .addClass('bin')
+            .attr('href', 'https://www.cellartracker.com/barcode.asp?iWine=' + rowDataArray[i]['iWine'] + '&Size=' + encodeURIComponent(rowDataArray[i]['Size']) + '&Location=' + encodeURIComponent(rowDataArray[i]['Location']) + '&Bin=' + encodeURIComponent(currentBinList[binIndex]))
+            .text(currentBinList[binIndex])
+            .appendTo(binAndPriceList);
+
+          if (binIndex !== (binCount - 1)) {
+            binEl.after(', ');
+          }
+        }
+
+        price = Math.ceil(parseFloat(rowDataArray[i]['Price']));
+
+        if (binCount > 0 && price !== 0) {
+          $('<span>')
+            .addClass('price-list-item')
+            .text(", ")
+            .appendTo(binAndPriceList);
+        }
+
+        if (price !== 0) {
+          $('<span>')
+            .addClass('price')
+            .addClass('price-list-item')
+            .text('$' + price)
+            .appendTo(binAndPriceList);
+        }
+
+        $('<div>')
+          .addClass('wine')
+          .append(nameAndLocale)
+          .append(binAndPriceList)
+          .appendTo(wineEl);
+
+        wineGroupEl.append(wineWrapperEl);
+      }
+
+      wineListEl.append(renderLegend());
+
+      return wineListEl;
+    }
+
+    function processRawData() {
+      var wineListEl;
+          
+      parseRawData();
+      wineListEl = renderWineList();
+      $('#wine-list-wrapper').append(wineListEl);
+    }
+
+    function getResponseErrorMessage(response) {
+      var root,
+        body;
+
+      if (response) {
+        root = response.documentElement;
+      }
+
+      //An HTML response from CellarTracker indicates an error, stored in the body element.
+      if (root && root.localName == "html" && root.namespaceURI === null) {
+        body = root.firstChild;
+        if (body && body.localName == "body" && body.namespaceURI === null) {
+          return body.textContent;
+        }
+      } else if (!root) {
+        return 'An error occured while accessing CellarTracker. There was no data in the response.'
+      }
+
+      return;
+    }
+
+    function isLoginErrorResponse(response) {
+      var responseErrorMessage;
+
+      responseErrorMessage = getResponseErrorMessage(response);
+      if (responseErrorMessage == "You are currently not logged into CellarTracker.") {
+        return true;
+      }
+
+      return false;
+    }
+
+    function loadRawDataUsingXHR(credentials, callback) {
+      rawDataURL = "http://www.cellartracker.com/classic/xlquery.asp?table=Inventory&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
+      getXMLAsyncXHR(rawDataURL, function (response) {
+        rawDataXML = response;
+        
+        if (isLoginErrorResponse(response)) {
+          alert("There was an error logging in. Please visit CellarTracker to confirm that your handle and password are correct.");
+          callback.call(this, credentials, false);
+        } else {
+          callback.call(this, credentials, true);
+        }
+      });
+    }
+    
+    function updatePageUri(newUri) {
+      window.onpopstate = function () {
+        queryString = getRawQueryString();
+        loadWineListWithQueryStringCredentials();
+      };
+
+      window.history.pushState(null, 'Wine List', newUri);
+      queryString = getRawQueryString();
+    }
+
+    function updatePageState(credentials, succeeded) {
+      var queryCredentials,
+          newUri;
+
+      queryCredentials = getCredentialsFromQueryString();
+
+      progressAnimation.stop();
+      
+      if (succeeded) {
+        setSpinnerCompleted(true);
+        setProgressStatus('Formatting data');
+        
+        setTimeout(function () {
+          processRawData();
+          showWineList();
+          updateLayout();
+          
+          if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
+            updatePageUri("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
+          }
+          
+        }, 200);
+
+      } else {
+        showMainContent();
+
+        if (queryCredentials.user || queryCredentials.password) {
+          updatePageUri('?');
+        }
+      }
+    }
+
+    function loadWineList(credentials) {
+      var succeeded;
+
+      if (credentials.user && credentials.password) {
+        setProgressStatus('Downloading data' + ellipsis);
+        showProgress();
+        progressAnimation.start();
+        
+        loadRawDataUsingXHR(credentials, updatePageState);
+        
+      } else {
+        updatePageState(credentials, succeeded);
+      }
+    }
+
+    function loadWineListWithQueryStringCredentials() {
+      var credentials;
+
+      credentials = getCredentialsFromQueryString();
+      loadWineList(credentials);
+    }
+
+    function loadWineListWithFormCredentials() {
+      var credentials;
+
+      credentials = getCredentialsFromForm();
+
+      if (credentials.user && credentials.password) {
+        loadWineList(credentials);
+
+      } else {
+        alert("A CellarTracker handle and password are required.");
+        updatePageState(credentials, false);
+      }
+    }
+
+  progressAnimation = (function() {
+    var count,
+      delay,
+      timeoutId;
+    
+    delay = 100;
+    count = 0;
+    
+    function rotate() {
+      var spinnerEl,
+        transform;
+        
+      spinnerEl = document.getElementById('spinner');
+      transform = 'scale(0.5) rotate(' + count + 'deg)';
+      spinnerEl.style.MozTransform = transform;
+      spinnerEl.style.WebkitTransform = transform;
+
+      if (count === 360) {
+        count = 0;
+      }
+      count += 45;
+      
+      timeoutId = window.setTimeout(rotate, delay);
+    }
+    
+    function stopCore() {
+        if (typeof timeoutId !== 'undefined') {
+          window.clearTimeout(timeoutId);
+          timeoutId = undefined;
+        }
+    }
+    
+    return {
+      start: function() {
+        stopCore();
+        timeoutId = window.setTimeout(rotate, delay);
+      },
+      
+      stop: function() {
+        stopCore();
+      }
+    };
+
+  })();
+
+  WineListTransform = {
+
+    loadWineList: function () {
+      init();
+      loadWineListWithQueryStringCredentials();
+    },
+
+    handleCredentialsFormSubmit: function (e) {
+      e.preventDefault();
+      loadWineListWithFormCredentials();
+    }
+
+  };
+
+})();
+    //]]>
+    </script>
+
+    <style type="text/css">
+    
+    #progress {
+      display: none;
+      position: relative;
+      max-width: 17em;
+      margin: 0 auto;
+      border: 1px solid black;
+    }
+    #progress-status {
+      left: 100px;
+      height: 100px;
+      display: table-cell;
+      vertical-align: middle;
+    }
+    
+    /* Progress spinner. See http://kilianvalkhof.com/2010/css-xhtml/css3-loading-spinners-without-images/ */
+    /* position the bars and balls correctly (rotate them and translate them outward)*/
+    #spinner {
+      position:relative;
+      width:100px;
+      height:100px;
+      float:left;
+      -moz-border-radius:100px;
+      -webkit-border-radius:100px;
+      -moz-transform:scale(0.5);
+      -webkit-transform:scale(0.5);
+    }
+    #spinner div {
+      width:20px;
+      height:20px;
+      background:#000;
+      -moz-border-radius:40px;
+      -webkit-border-radius:40px;
+      position:absolute;
+      left:40px;
+      top:40px;
+      -moz-box-shadow:black 0 0 4px;
+      -webkit-box-shadow:black 0 0 4px;
+    }
+    #spinner.completed div {
+      opacity: 1;
+    }
+    .bar1 {
+      -moz-transform:rotate(0deg) translate(0, -40px);
+      -webkit-transform:rotate(0deg) translate(0, -40px);
+      opacity:0.12;
+    }
+    .bar2 {
+      -moz-transform:rotate(45deg) translate(0, -40px);
+      -webkit-transform:rotate(45deg) translate(0, -40px);
+      opacity:0.25;
+    }
+    .bar3 {
+      -moz-transform:rotate(90deg) translate(0, -40px);
+      -webkit-transform:rotate(90deg) translate(0, -40px);
+      opacity:0.37;
+    }
+    .bar4 {
+      -moz-transform:rotate(135deg) translate(0, -40px);
+      -webkit-transform:rotate(135deg) translate(0, -40px);
+      opacity:0.50;
+    }
+    .bar5 {
+      -moz-transform:rotate(180deg) translate(0, -40px);
+      -webkit-transform:rotate(180deg) translate(0, -40px);
+      opacity:0.62;
+    }
+    .bar6 {
+      -moz-transform:rotate(225deg) translate(0, -40px);
+      -webkit-transform:rotate(225deg) translate(0, -40px);
+      opacity:0.75;
+    }
+    .bar7 {
+      -moz-transform:rotate(270deg) translate(0, -40px);
+      -webkit-transform:rotate(270deg) translate(0, -40px);
+      opacity:0.87;
+    }
+    .bar8 {
+      -moz-transform:rotate(315deg) translate(0, -40px);
+      -webkit-transform:rotate(315deg) translate(0, -40px);
+      opacity:1;
+    }
+    
+    #main {
+      margin-left: auto;
+      margin-right: auto;
+      width: 40%;
+      min-width: 35em;
+      display: none;
+    }
+
+    #credentials-prompt {
+      text-align: center;
+      margin: 0.5em;
+    }
+
+    #credentials-prompt > span {
+      display: inline-block;
+      border: 1px solid black;
+      text-align: left;
+    }
+
+    #credentials-fields {
+      padding: 0.2em 0.5em 0.2em 0.5em;
+    }
+
+    #footer {
+      text-align: center;
+    }
+    </style>
+
+    <style type="text/css">
+    body {
+      font-size: 100%;
+      min-width: 550px;
+    }
+
+    .wine-list {
+      -webkit-column-count: 3;
+      -webkit-column-gap: 20px;
+      /*
+      -webkit-column-width: 20em;
+      -webkit-column-gap: 2em;
+      */
+      -webkit-column-rule-color: black;
+      -webkit-column-rule-style: solid;
+      -webkit-column-rule-width: 2px;
+      -moz-column-count: 3;
+      -moz-column-gap: 20px;
+      /*
+      -moz-column-width: 20em;
+      -moz-column-gap: 2em;
+      */
+      -moz-column-rule-color: black;
+      -moz-column-rule-style: solid;
+      -moz-column-rule-width: 2px;
+      column-count: 3;
+      column-gap: 20px;
+      /*
+      -column-width: 20em;
+      -column-gap: 2em;
+      */
+      column-rule-color: black;
+      column-rule-style: solid;
+      column-rule-width: 2px;
+    }
+
+    .wine-list a:link,
+    .wine-list a:visited {
+      text-decoration: none;
+      color: black;
+    }
+
+    .wine-list a:hover,
+    .wine-list a:active {
+      text-decoration: underline;
+      color: rgb(70, 130, 180);
+    }
+
+    .type-group {
+    }
+
+    #wine-list-wrapper.two-column>.wine-list {
+      -webkit-column-count: 2;
+      -moz-column-count: 2;
+      column-count: 2;
+    }
+
+    .type-heading {
+      clear: both;
+      font-size: 2em;
+      font-weight: bold;
+      font-family: Arial,Helvetica,sans-serif;
+      font-variant: small-caps;
+      text-align: center;
+      background: #F3F3F3;
+      border-top: solid windowtext .5pt;
+      border-bottom: solid windowtext .5pt;
+      margin-bottom: 0.3em;
+    }
+
+    .varietal-group {
+    }
+
+    .varietal-heading {
+      clear:both;
+      margin-top: 0.6em;
+      font-weight: bold;
+    }
+
+    .wine {
+      clear: both;
+      -webkit-column-break-inside: avoid;
+      -moz-column-break-inside: avoid;
+      column-break-inside: avoid;
+    }
+
+    table.avoid-break {
+      width: 100%;
+      -webkit-column-break-inside: avoid;
+      -moz-column-break-inside: avoid;
+      column-break-inside: avoid;
+    }
+
+    table.avoid-break td {
+      padding: 0;
+    }
+
+    .wine-name-and-locale {
+      display: block; /* Display must be block or inline-block so the width rules are respected. */
+      overflow: hidden;
+      width: 78%;
+      float: left;
+      margin-bottom: 0.2em;
+    }
+
+    .wine-name {
+    }
+
+    .locale {
+      font-style: italic;
+      font-size: 0.8em;
+      /* white-space: nowrap; */
+    }
+
+    .bottle-note {
+      color: rgb(256, 140, 0);
+      font-size: 0.9em;
+    }
+
+    .bin-and-price-list {
+      text-align: right;
+      padding-left: 2%;
+      display: block; /* Display must be block or inline-block so the width rules are respected. */
+      overflow: hidden;
+      width: 20%; /* Use the same width so we don't have to recompute the width available for the wine name on each row. */
+      float: right;
+      margin-bottom: 0.2em;
+    }
+
+    .hide-prices .price-list-item {
+      display: none;
+    }
+
+    .price {
+      font-style: italic;
+    }
+
+    .legend {
+      padding-top: 0.5em;
+      /* -webkit-column-break-inside: avoid; */
+      /* break-inside: avoid-column; */
+    }
+  </style>
+  </head>
+  <body onload="WineListTransform.loadWineList();">
+    <div id="main">
+      <h1>Cellar View</h1>
+      <p>Extend the viewing options available from CellarTracker. Provide your CellarTracker!&trade; information below, then load the wine list. Bookmark the wine list page to get back to it without reentering your user information.</p>
+      <p>Note that your password will be sent to CellarTracker in plain text and will be visible in your browser's address bar.</p>
+      <div id="credentials-prompt">
+        <span>
+          <form id="credentials-form" onSubmit="WineListTransform.handleCredentialsFormSubmit(event);">
+            <table id="credentials-fields">
+              <tr>
+                <th colspan="2">CellarTracker!&trade; user information</th>
+              </tr>
+              <tr>
+                <td>Handle:</td>
+                <td><input id="user-input" type="text" /></td>
+              </tr>
+              <tr>
+                <td>Password:</td>
+                <td><input id="password-input" type="password" /></td>
+              </tr>
+              <tr>
+                <td colspan="2" align="right">
+                  <input type="submit" value="Load wine list" />
+                </td>
+              </tr>
+            </table>
+          </form>
+        </span>
+      </div>
+      <div id="footer">
+        <span><a href="http://code.google.com/p/cellar-view/" title="Cellar View on Google Code">About Cellar View</a> - <a href="http://www.cellartracker.com/">CellarTracker!&trade;</a>
+      </div>
+    </div>
+    <div id="progress">
+      <div id="spinner">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+        <div class="bar4"></div>
+        <div class="bar5"></div>
+        <div class="bar6"></div>
+        <div class="bar7"></div>
+        <div class="bar8"></div>
+      </div>
+      <div id="progress-status"></div>
+    </div>
+    <div id="wine-list-wrapper"></div>
+  </body>
+</html>
