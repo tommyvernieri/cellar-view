@@ -852,7 +852,7 @@ var WineListTransform;
     }
 
     function loadRawDataUsingXHR(credentials, callback) {
-      rawDataURL = "http://www.cellartracker.com/xlquery.asp?table=Inventory&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
+      rawDataURL = "http://www.cellartracker.com/classic/xlquery.asp?table=Inventory&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
       getXMLAsyncXHR(rawDataURL, function (response) {
         rawDataXML = response;
         
