@@ -164,6 +164,7 @@ var WineListTransform;
       var req;
 
       req = new XMLHttpRequest();
+
       req.onreadystatechange = function() {
         if (req.readyState == 4) {
           if (!(req.status == 200 || req.status == 0)) {
@@ -173,6 +174,11 @@ var WineListTransform;
           }
         }
       };
+
+      req.onerror = function() {
+        alert("An error occured while accessing CellarTracker.");
+      };
+
       req.open('GET', url, true);
       req.send(null);
     }
@@ -542,8 +548,13 @@ var WineListTransform;
           rowElements,
           rowIndex;
 
-      root = rawDataXML.documentElement;
-      rowElements = root.getElementsByTagName("row");
+      if (rawDataXML) {
+        root = rawDataXML.documentElement;
+      }
+
+      if (root) {
+        rowElements = root.getElementsByTagName("row");
+      }
 
       rowDataset = {};
       if (rowElements) {
@@ -620,6 +631,9 @@ var WineListTransform;
     function renderLegend() {
       var legendEl,
           legendItemEl;
+
+      //TODO: Replace the legend with a better rendering of location and
+      // grouping information.
 
       legendEl = $('<div>').addClass('legend');
       legendItemEl = $('<div>')
@@ -807,9 +821,11 @@ var WineListTransform;
 
     function getResponseErrorMessage(response) {
       var root,
-          body;
+        body;
 
-      root = rawDataXML.documentElement;
+      if (response) {
+        root = response.documentElement;
+      }
 
       //An HTML response from CellarTracker indicates an error, stored in the body element.
       if (root && root.localName == "html" && root.namespaceURI === null) {
@@ -817,6 +833,8 @@ var WineListTransform;
         if (body && body.localName == "body" && body.namespaceURI === null) {
           return body.textContent;
         }
+      } else if (!root) {
+        return 'An error occured while accessing CellarTracker. There was no data in the response.'
       }
 
       return;
@@ -825,7 +843,7 @@ var WineListTransform;
     function isLoginErrorResponse(response) {
       var responseErrorMessage;
 
-      responseErrorMessage = getResponseErrorMessage(rawDataXML);
+      responseErrorMessage = getResponseErrorMessage(response);
       if (responseErrorMessage == "You are currently not logged into CellarTracker.") {
         return true;
       }
@@ -834,11 +852,11 @@ var WineListTransform;
     }
 
     function loadRawDataUsingXHR(credentials, callback) {
-      rawDataURL = "http://www.cellartracker.com/xlquery.asp?table=Inventory&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
+      rawDataURL = "http://www.cellartracker.com/classic/xlquery.asp?table=Inventory&User=" + credentials.user + "&Password=" + credentials.password + "&Format=xml";
       getXMLAsyncXHR(rawDataURL, function (response) {
         rawDataXML = response;
         
-        if (isLoginErrorResponse(rawDataXML)) {
+        if (isLoginErrorResponse(response)) {
           alert("There was an error logging in. Please visit CellarTracker to confirm that your handle and password are correct.");
           callback.call(this, credentials, false);
         } else {
