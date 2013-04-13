@@ -165,8 +165,6 @@ var WineListTransform;
 
       req = new XMLHttpRequest();
 
-      req.setRequestHeader('User-Agent','XMLHTTP/1.0');
-
       req.onreadystatechange = function() {
         if (req.readyState == 4) {
           if (!(req.status == 200 || req.status == 0)) {
@@ -182,6 +180,7 @@ var WineListTransform;
       };
 
       req.open('GET', url, true);
+      req.setRequestHeader('User-Agent','XMLHTTP/1.0');
       req.send(null);
     }
     
