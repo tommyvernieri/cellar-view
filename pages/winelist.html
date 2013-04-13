@@ -164,6 +164,9 @@ var WineListTransform;
       var req;
 
       req = new XMLHttpRequest();
+
+      req.setRequestHeader('User-Agent','XMLHTTP/1.0');
+
       req.onreadystatechange = function() {
         if (req.readyState == 4) {
           if (!(req.status == 200 || req.status == 0)) {
@@ -173,6 +176,11 @@ var WineListTransform;
           }
         }
       };
+
+      req.onerror = function() {
+        alert("An error occured while accessing CellarTracker.");
+      };
+
       req.open('GET', url, true);
       req.send(null);
     }
@@ -621,6 +629,9 @@ var WineListTransform;
       var legendEl,
           legendItemEl;
 
+      //TODO: Replace the legend with a better rendering of location and
+      // grouping information.
+
       legendEl = $('<div>').addClass('legend');
       legendItemEl = $('<div>')
         .text('◊ Could benefit from further cellaring')
@@ -807,9 +818,11 @@ var WineListTransform;
 
     function getResponseErrorMessage(response) {
       var root,
-          body;
+        body;
 
-      root = rawDataXML.documentElement;
+      if (rowDataFromXML) {
+        root = rawDataXML.documentElement;
+      }
 
       //An HTML response from CellarTracker indicates an error, stored in the body element.
       if (root && root.localName == "html" && root.namespaceURI === null) {
@@ -817,6 +830,8 @@ var WineListTransform;
         if (body && body.localName == "body" && body.namespaceURI === null) {
           return body.textContent;
         }
+      } else if (!root) {
+        return 'An error occured while accessing CellarTracker. There was no response.'
       }
 
       return;
