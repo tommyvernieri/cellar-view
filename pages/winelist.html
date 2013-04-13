@@ -549,8 +549,13 @@ var WineListTransform;
           rowElements,
           rowIndex;
 
-      root = rawDataXML.documentElement;
-      rowElements = root.getElementsByTagName("row");
+      if (root) {
+        root = rawDataXML.documentElement;
+      }
+
+      if (root) {
+        rowElements = root.getElementsByTagName("row");
+      }
 
       rowDataset = {};
       if (rowElements) {
