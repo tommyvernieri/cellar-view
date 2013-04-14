@@ -1,0 +1,26 @@
+#main {
+  margin-left: auto;
+  margin-right: auto;
+  width: 40%;
+  min-width: 35em;
+  display: none;
+}
+
+#credentials-prompt {
+  text-align: center;
+  margin: 0.5em;
+}
+
+#credentials-prompt > span {
+  display: inline-block;
+  border: 1px solid black;
+  text-align: left;
+}
+
+#credentials-fields {
+  padding: 0.2em 0.5em 0.2em 0.5em;
+}
+
+#footer {
+  text-align: center;
+}

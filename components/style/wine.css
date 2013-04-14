@@ -1,0 +1,165 @@
+body {
+  font-size: 100%;
+  min-width: 550px;
+}
+
+.wine-list {
+  -webkit-column-count: 3;
+  -webkit-column-gap: 20px;
+  /*
+  -webkit-column-width: 20em;
+  -webkit-column-gap: 2em;
+  */
+  -webkit-column-rule-color: black;
+  -webkit-column-rule-style: solid;
+  -webkit-column-rule-width: 2px;
+  -moz-column-count: 3;
+  -moz-column-gap: 20px;
+  /*
+  -moz-column-width: 20em;
+  -moz-column-gap: 2em;
+  */
+  -moz-column-rule-color: black;
+  -moz-column-rule-style: solid;
+  -moz-column-rule-width: 2px;
+  column-count: 3;
+  column-gap: 20px;
+  /*
+  -column-width: 20em;
+  -column-gap: 2em;
+  */
+  column-rule-color: black;
+  column-rule-style: solid;
+  column-rule-width: 2px;
+}
+
+.type-group {
+}
+
+#wine-list-wrapper.two-column>.wine-list {
+  -webkit-column-count: 2;
+  -moz-column-count: 2;
+  column-count: 2;
+}
+
+table.avoid-break {
+  width: 100%;
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  column-break-inside: avoid;
+}
+
+table.avoid-break td {
+  padding: 0;
+}
+
+.type-heading {
+  clear: both;
+  font-size: 2em;
+  font-weight: bold;
+  font-family: Arial,Helvetica,sans-serif;
+  font-variant: small-caps;
+  text-align: center;
+  background: #F3F3F3;
+  border-top: solid windowtext .5pt;
+  border-bottom: solid windowtext .5pt;
+  margin-bottom: 0.3em;
+}
+
+.varietal-group {
+}
+
+.varietal-heading {
+  clear:both;
+  margin-top: 0.6em;
+  font-weight: bold;
+}
+
+.wine {
+  clear: both;
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  column-break-inside: avoid;
+}
+
+.wine-list a:link {
+  text-decoration: none;
+  color: rgb(0, 0, 0); /* Black */
+}
+
+.wine-list a:visited {
+  text-decoration: none;
+  color: rgb(0, 0, 0); /* Black */
+}
+
+.category-house,
+.category-house a:link,
+.category-house a:visited {
+  color: rgb(221, 160, 221); /* Plum */
+}
+
+.category-normal {
+
+}
+
+.category-reserve,
+.category-reserve a:link,
+.category-reserve a:visited {
+  color: rgb(119, 136, 153); /* LightSlateGray */
+}
+
+.wine-list a:hover {
+  text-decoration: underline;
+  color: rgb(70, 130, 180); /* SteelBlue */
+}
+
+.wine-list a:active {
+  text-decoration: underline;
+  color: rgb(70, 130, 180); /* SteelBlue */
+}
+
+.wine-name-and-locale {
+  display: block; /* Display must be block or inline-block so the width rules are respected. */
+  overflow: hidden;
+  width: 78%;
+  float: left;
+  margin-bottom: 0.2em;
+}
+
+.wine-name {
+}
+
+.locale {
+  font-style: italic;
+  font-size: 0.8em;
+  /* white-space: nowrap; */
+}
+
+.bottle-note {
+  color: rgb(256, 140, 0); /* DarkOrange */
+  font-size: 0.9em;
+}
+
+.bin-and-price-list {
+  text-align: right;
+  padding-left: 2%;
+  display: block; /* Display must be block or inline-block so the width rules are respected. */
+  overflow: hidden;
+  width: 20%; /* Use the same width so we don't have to recompute the width available for the wine name on each row. */
+  float: right;
+  margin-bottom: 0.2em;
+}
+
+.hide-prices .price-list-item {
+  display: none;
+}
+
+.price {
+  font-style: italic;
+}
+
+.legend {
+  padding-top: 0.5em;
+  /* -webkit-column-break-inside: avoid; */
+  /* break-inside: avoid-column; */
+}
