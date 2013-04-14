@@ -363,10 +363,8 @@ var WineListTransform;
     ];
 
     var localeRules = [
-      {c: 'USA', r: 'California', s: 'Unknown', rn: '*'},
-      {c: 'USA', r: 'California', s: '*', a: '', sn: '*'},
       {c: 'USA', r: 'California', s: '*', a: '*', sn: '*', an: '*'},
-      {c: 'USA', r: '*', s: '*', a: '*', r: '*', sn: '*', an: '*'},
+      {c: 'USA', r: '*', s: '*', a: '*', rn: '*', sn: '*', an: '*'},
       {c: 'France', r: 'Languedoc Roussillon', s: 'Languedoc', a: '*', sn: '*', an: '*'},
       {c: 'France', r: 'Languedoc Roussillon', s: 'Roussillon', a: '*', sn: '*', an: '*'},
       {c: 'France', r: 'Champagne', s: '*', a: 'Champagne', rn: '*', sn: '*'},
@@ -390,8 +388,8 @@ var WineListTransform;
       typeGroupMap['White - Sweet/Dessert'] = 'Dessert Wines';
       typeGroupMap['Rosé - Sweet/Dessert'] = 'Dessert Wines';
       typeGroupMap['Red - Sweet/Dessert'] = 'Dessert Wines';
-      typeGroupMap['White - Fortified'] = 'Other';
-      typeGroupMap['Red - Fortified'] = 'Other';
+      typeGroupMap['White - Fortified'] = 'Dessert Wines';
+      typeGroupMap['Red - Fortified'] = 'Dessert Wines';
       typeGroupMap['Fruit/Vegetable Wine'] = 'Other';
       typeGroupMap['Sake'] = 'Other';
       typeGroupMap['Spirits'] = 'Other';
@@ -479,7 +477,7 @@ var WineListTransform;
         }
 
         if (localeRule.rn === '*') {
-          if (region) {
+          if (region && region !== 'Unknown') {
             localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + region;
           }
         } else if (localeRule.rn) {
@@ -487,7 +485,7 @@ var WineListTransform;
         }
 
         if (localeRule.sn === '*') {
-          if (subRegion) {
+          if (subRegion && subRegion !== 'Unknown') {
             localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + subRegion;
           }
         } else if (localeRule.sn) {
@@ -495,7 +493,7 @@ var WineListTransform;
         }
 
         if (localeRule.an === '*') {
-          if (appellation) {
+          if (appellation && appellation !== 'Unknown') {
             localeAbbreviated += (localeAbbreviated.length ? ', ' : '') + appellation;
           }
         } else if (localeRule.an) {
@@ -609,13 +607,13 @@ var WineListTransform;
       varietalTypeMap['White - Sweet/Dessert'] = 5;
       varietalTypeMap['Rosé - Sweet/Dessert'] = 5;
       varietalTypeMap['Red - Sweet/Dessert'] = 6;
-      varietalTypeMap['White - Fortified'] = 7;
-      varietalTypeMap['Red - Fortified'] = 8;
-      varietalTypeMap['Fruit/Vegetable Wine'] = 9;
-      varietalTypeMap['Sake'] = 9;
-      varietalTypeMap['Spirits'] = 9;
-      varietalTypeMap['Liqueur'] = 9;
-      varietalTypeMap['Non-alcoholic'] = 9;
+      varietalTypeMap['White - Fortified'] = 5;
+      varietalTypeMap['Red - Fortified'] = 6;
+      varietalTypeMap['Fruit/Vegetable Wine'] = 7;
+      varietalTypeMap['Sake'] = 7;
+      varietalTypeMap['Spirits'] = 7;
+      varietalTypeMap['Liqueur'] = 7;
+      varietalTypeMap['Non-alcoholic'] = 7;
 
       return varietalTypeMap[rowData['Type']];
     }
@@ -628,17 +626,20 @@ var WineListTransform;
       return a[key].localeCompare(b[key]);
     }
 
-    function renderLegend() {
-      var legendEl,
-          legendItemEl;
-
-      //TODO: Replace the legend with a better rendering of location and
-      // grouping information.
+    function renderLegend(legendDataArray) {
+      var i,
+        legendEl,
+        legendItemEl;
 
       legendEl = $('<div>').addClass('legend');
-      legendItemEl = $('<div>')
-        .text('◊ Could benefit from further cellaring')
-        .appendTo(legendEl);
+
+      legendDataArray.sort();
+      for (i = 0; i < legendDataArray.length; i++) {
+        legendItemEl = $('<div>')
+          .addClass(mapLocationToCategoryClass(legendDataArray[i]))
+          .text(legendDataArray[i])
+          .appendTo(legendEl);
+      }
 
       return legendEl;
     }
@@ -674,64 +675,78 @@ var WineListTransform;
       return result;
     }
 
+    function mapLocationToCategoryClass(location) {
+      var locationMap = {};
+      locationMap['Wine Fridge'] = 'category-normal';
+      locationMap['Wine Fridge - Reserve'] = 'category-reserve';
+      locationMap['Wine Fridge - House'] = 'category-house';
+
+      return locationMap[location];
+    }
+
     function renderWineList() {
       var binCount,
         binEl,
         binIndex,
+        categoryClass,
         currentBinList,
         i,
+        legendDataset,
+        legendDataArray,
         localeAbbreviated,
+        location,
         previousTypeGroup,
         previousVarietalGroup,
         price,
         typeGroup,
         varietalGroup,
         wineEl,
+        wineCellEl,
         wineGroupEl,
         wineListEl,
         wineWrapperEl;
 
+      legendDataset = {};
+      legendDataArray = [];
+
+      //Main container for wine and legend information
       wineListEl = $('<div>').addClass('wine-list');
 
       rowDataArray.sort(compareWineRows);
 
       for (i = 0; i < rowDataArray.length; i++) {
-        wineEl = $('<td>');
-        wineWrapperEl = $('<table>')
-          .append(
-            $('<tbody>')
-              .append(
-                $('<tr>')
-                  .append(
-                    wineEl
-                  )
-                )
-            )
-          .addClass('avoid-break');
+        //Cell container for everything related to this wine
+        wineCellEl = $('<td>');
 
+        //Type heading if the type is different than the previous wine
         typeGroup = rowDataArray[i]['TypeGroup'];
         if (previousTypeGroup !== typeGroup) {
           previousTypeGroup = typeGroup;
 
+          //Type groups nest inside the main container
           wineGroupEl = $('<div>')
             .addClass('type-group')
             .appendTo(wineListEl);
 
+          //Type headings appear at the top of the wine cell container
           $('<div>')
             .addClass('type-heading')
             .text(typeGroup)
-            .appendTo(wineEl);
+            .appendTo(wineCellEl);
         }
 
+        //Varietal heading if the varietal is different than the preivous wine
         varietalGroup = rowDataArray[i]['VarietalGroup'];
         if (previousVarietalGroup !== varietalGroup) {
+          previousVarietalGroup = varietalGroup;
+
           $('<div>')
             .addClass('varietal-heading')
             .text(varietalGroup)
-            .appendTo(wineEl);
-          previousVarietalGroup = varietalGroup;
+            .appendTo(wineCellEl);
         }
 
+        //This wine's vintage, name, locale, and bottle note
         nameAndLocale = $('<span>').addClass('wine-name-and-locale');
 
         if (rowDataArray[i]['Vintage'] !== '1001') {
@@ -763,6 +778,7 @@ var WineListTransform;
             .before('<br>');
         }
 
+        //This wine's bins and price
         binAndPriceList = $('<span>').addClass('bin-and-price-list');
 
         currentBinList = rowDataArray[i]['BinList'];
@@ -797,16 +813,40 @@ var WineListTransform;
             .appendTo(binAndPriceList);
         }
 
-        $('<div>')
-          .addClass('wine')
-          .append(nameAndLocale)
-          .append(binAndPriceList)
-          .appendTo(wineEl);
+        //Container for information specific to this wine (i.e. not headers)
+        wineEl = $('<div>')
+          .addClass('wine');
 
+        location = rowDataArray[i]['Location'];
+        categoryClass = mapLocationToCategoryClass(location);
+        if (categoryClass) {
+          wineEl.addClass(categoryClass);
+
+          //Record this class for use in the legend later
+          if (!legendDataset[location]) {
+            legendDataset[location] = categoryClass;
+            legendDataArray.push(location);
+          }
+        }
+
+        wineEl.append(nameAndLocale);
+        wineEl.append(binAndPriceList);
+
+        wineCellEl.append(wineEl);
+
+        //Wrapper to accommodate layout
+        wineWrapperEl = $('<table>')
+          .addClass('avoid-break');
+
+        wineCellEl.appendTo('<tr>')
+          .appendTo('<tbody>')
+          .appendTo(wineWrapperEl);
+
+        //Wrappers nest inside the type group
         wineGroupEl.append(wineWrapperEl);
       }
 
-      wineListEl.append(renderLegend());
+      wineListEl.append(renderLegend(legendDataArray));
 
       return wineListEl;
     }
@@ -1154,18 +1194,6 @@ var WineListTransform;
       column-rule-width: 2px;
     }
 
-    .wine-list a:link,
-    .wine-list a:visited {
-      text-decoration: none;
-      color: black;
-    }
-
-    .wine-list a:hover,
-    .wine-list a:active {
-      text-decoration: underline;
-      color: rgb(70, 130, 180);
-    }
-
     .type-group {
     }
 
@@ -1173,6 +1201,17 @@ var WineListTransform;
       -webkit-column-count: 2;
       -moz-column-count: 2;
       column-count: 2;
+    }
+
+    table.avoid-break {
+      width: 100%;
+      -webkit-column-break-inside: avoid;
+      -moz-column-break-inside: avoid;
+      column-break-inside: avoid;
+    }
+
+    table.avoid-break td {
+      padding: 0;
     }
 
     .type-heading {
@@ -1204,15 +1243,40 @@ var WineListTransform;
       column-break-inside: avoid;
     }
 
-    table.avoid-break {
-      width: 100%;
-      -webkit-column-break-inside: avoid;
-      -moz-column-break-inside: avoid;
-      column-break-inside: avoid;
+    .wine-list a:link {
+      text-decoration: none;
+      color: rgb(0, 0, 0); /* Black */
     }
 
-    table.avoid-break td {
-      padding: 0;
+    .wine-list a:visited {
+      text-decoration: none;
+      color: rgb(0, 0, 0); /* Black */
+    }
+
+    .category-house,
+    .category-house a:link,
+    .category-house a:visited {
+      color: rgb(221, 160, 221); /* Plum */
+    }
+
+    .category-normal {
+
+    }
+
+    .category-reserve,
+    .category-reserve a:link,
+    .category-reserve a:visited {
+      color: rgb(119, 136, 153); /* LightSlateGray */
+    }
+
+    .wine-list a:hover {
+      text-decoration: underline;
+      color: rgb(70, 130, 180); /* SteelBlue */
+    }
+    
+    .wine-list a:active {
+      text-decoration: underline;
+      color: rgb(70, 130, 180); /* SteelBlue */
     }
 
     .wine-name-and-locale {
@@ -1233,7 +1297,7 @@ var WineListTransform;
     }
 
     .bottle-note {
-      color: rgb(256, 140, 0);
+      color: rgb(256, 140, 0); /* DarkOrange */
       font-size: 0.9em;
     }
 
