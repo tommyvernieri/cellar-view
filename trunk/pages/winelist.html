@@ -539,6 +539,10 @@ var WineListTransform;
 
     }
 
+    function includeRow(rowData) {
+      return rowData['Location'] !== '(pending)';
+    }
+
     function parseRawData() {
       var root,
           row,
@@ -559,7 +563,9 @@ var WineListTransform;
           for (rowIndex = 0; rowIndex < rowElements.length; rowIndex++) {
             row = rowElements[rowIndex];
             rowData = rowDataFromXML(row);
-            mergeRowIntoDatasets(rowData);
+            if (includeRow(rowData)) {
+              mergeRowIntoDatasets(rowData);
+            }
           }
       }
     }
@@ -933,7 +939,7 @@ var WineListTransform;
           updateLayout();
           
           if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
-            updatePageUri("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
+            updatePageState("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
           }
           
         }, 200);
