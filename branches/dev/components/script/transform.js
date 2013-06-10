@@ -316,6 +316,7 @@
       {t: 'White', m: 'Sémillon-Sauvignon Blanc Blend', vn: 'White Blend'},
       {t: 'Red', m: 'Cabernet-Syrah Blend', vn: 'Red Blend'},
       {t: 'Red', m: 'Red Bordeaux Blend', vn: 'Red Blend - Bordeaux'},
+      {t: 'Red', m: 'Red Rhone Blend', vn: 'Red Blend - Rhone'},
       {t: 'Red', m: 'SuperTuscan Blend', vn: 'Red Blend - SuperTuscan'},
       {t: 'White - Sparkling', m: '*', vn: 'Sparkling'},
       {t: 'Rosé - Sparkling', m: '*', vn: 'Sparkling'},
@@ -323,6 +324,9 @@
     ];
 
     var localeRules = [
+      {c: 'USA', r: 'California', s: 'Sonoma County', a: 'Sonoma Coast', an: '*'},
+      {c: 'USA', r: 'California', s: 'Sonoma County', a: 'Sonoma County', an: '*'},
+      {c: 'USA', r: 'California', s: 'Sonoma County', a: 'Russian River Valley', an: '*'},
       {c: 'USA', r: 'California', s: '*', a: '*', sn: '*', an: '*'},
       {c: 'USA', r: '*', s: '*', a: '*', rn: '*', sn: '*', an: '*'},
       {c: 'France', r: 'Languedoc Roussillon', s: 'Languedoc', a: '*', sn: '*', an: '*'},
@@ -499,6 +503,10 @@
 
     }
 
+    function includeRow(rowData) {
+      return rowData['Location'] !== '(pending)';
+    }
+
     function parseRawData() {
       var root,
           row,
@@ -519,7 +527,9 @@
           for (rowIndex = 0; rowIndex < rowElements.length; rowIndex++) {
             row = rowElements[rowIndex];
             rowData = rowDataFromXML(row);
-            mergeRowIntoDatasets(rowData);
+            if (includeRow(rowData)) {
+              mergeRowIntoDatasets(rowData);
+            }
           }
       }
     }
