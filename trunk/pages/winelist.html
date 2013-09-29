@@ -200,8 +200,33 @@ var WineListTransform;
       return result;
     }
 
-    function getIsTwoColumnLayoutFromQueryString() {
-      return queryString["columns"] == 2;
+    function getColumnsFromQueryString() {
+      var columnsParam;
+      columnsParam = queryString["columns"];
+      return getColumnsFromParameter(columnsParam);
+    }
+
+    function getColumnsFromForm() {
+      var columnsParam;
+      columnsParam = $('input[name="columns-input"]:checked').val();
+      return getColumnsFromParameter(columnsParam);
+    }
+
+    function getColumnsFromParameter(columnsParam) {
+      var columnCount;
+
+      if (typeof columnsParam !== "undefined") {
+        columnCount = parseInt(columnsParam, 10);
+      }
+
+      //Only allow these known values
+      if (columnCount !== 2
+        && columnCount !== 3) {
+        //Default to 3 columns for undefined and invalid values
+        columnCount = 3;
+      }
+
+      return columnCount;
     }
 
     function getHidePricesFromQueryString() {
@@ -221,14 +246,18 @@ var WineListTransform;
     function getCredentialsFromQueryString() {
       return {
         user: queryString["user"],
-        password: queryString["password"]
+        password: queryString["password"],
+        columns: getColumnsFromQueryString(),
+        hidePrices: getHidePricesFromQueryString()
       };
     }
 
     function getCredentialsFromForm() {
       return {
         user: el('user-input').value,
-        password: el('password-input').value
+        password: el('password-input').value,
+        columns: getColumnsFromForm(),
+        hidePrices: false
       };
     }
     
@@ -245,7 +274,7 @@ var WineListTransform;
       }
     }
         
-    function updateLayout() {
+    function updateLayout(credentials) {
       var columnCount,
         i,
         length,
@@ -254,12 +283,24 @@ var WineListTransform;
         wineListWrapperEl,
         wineListMinWidth,
         wineNodes;
-        
+
+      if (typeof credentials === 'undefined') {
+        credentials = getCredentialsFromQueryString();
+      }
+      
       wineListWrapperEl = el('wine-list-wrapper');
       if (wineListWrapperEl) {
         wineListEl = getSingleElementByClassName(wineListWrapperEl, 'wine-list');
       }
       
+      if (credentials.hidePrices) {
+        addClass('wine-list-wrapper', 'hide-prices');
+      }
+
+      if (credentials.columns === 2) {
+        addClass('wine-list-wrapper', 'two-column');
+      }
+
       if (wineListEl) {
         wineNodes = wineListEl.getElementsByClassName('wine');
         length = wineNodes.length;
@@ -277,7 +318,7 @@ var WineListTransform;
           //wineMaxWidth = Math.max(wineMaxWidth, wineNodes[i].offsetWidth + 4);
         }
         
-        columnCount = (getIsTwoColumnLayoutFromQueryString() ? 2 : 3);
+        columnCount = credentials.columns;
 
         //Set .wine-list min-width =
         //  (maximum width of .wine) * (column count of 3)
@@ -301,21 +342,8 @@ var WineListTransform;
     }
 
     function init() {
-      var dataCleanupXML,
-        dataPresentationXML,
-        parser;
 
       queryString = getRawQueryString();
-      
-      if (getHidePricesFromQueryString()) {
-        addClass('wine-list-wrapper', 'hide-prices');
-      }
-
-      if (getIsTwoColumnLayoutFromQueryString()) {
-        addClass('wine-list-wrapper', 'two-column');
-      }
-      
-      parser = new DOMParser();
 
       window.onresize = (function () {
         var resizeTimeoutId;
@@ -926,8 +954,7 @@ var WineListTransform;
     }
 
     function updatePageState(credentials, succeeded) {
-      var queryCredentials,
-          newUri;
+      var queryCredentials;
 
       queryCredentials = getCredentialsFromQueryString();
 
@@ -938,12 +965,24 @@ var WineListTransform;
         setProgressStatus('Formatting data');
         
         setTimeout(function () {
+          var newUri;
+
           processRawData();
           showWineList();
-          updateLayout();
+          updateLayout(credentials);
           
-          if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
-            updatePageUri("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
+          if (queryCredentials.user !== credentials.user
+            || queryCredentials.password !== credentials.password
+            || queryCredentials.columns !== credentials.columns) {
+
+            newUri = "?user=" + encodeURIComponent(credentials.user)
+              + "&password=" + encodeURIComponent(credentials.password);
+
+            if (typeof credentials.columns !== 'undefined' && credentials.columns !== 3) {
+              newUri += "&columns=" + credentials.columns;
+            }
+
+            updatePageUri(newUri);
           }
           
         }, 200);
@@ -1163,6 +1202,10 @@ var WineListTransform;
       padding: 0.2em 0.5em 0.2em 0.5em;
     }
 
+    #columns-input-caption {
+      vertical-align: top;
+    }
+
     #footer {
       text-align: center;
     }
@@ -1355,6 +1398,13 @@ var WineListTransform;
               <tr>
                 <td>Password:</td>
                 <td><input id="password-input" type="password" /></td>
+              </tr>
+              <tr>
+                <td id="columns-input-caption">Columns:</td>
+                <td>
+                    <input type="radio" name="columns-input" value="2">2-column</input><br />
+                    <input type="radio" name="columns-input" value="3" checked="checked">3-column</input>
+                </td>
               </tr>
               <tr>
                 <td colspan="2" align="right">
