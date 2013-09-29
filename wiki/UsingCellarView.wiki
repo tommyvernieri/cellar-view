@@ -17,6 +17,8 @@ _Visit the [https://googledrive.com/host/0B109bpnE8T6QcEF6UHppR2cyZFE/winelist.h
 == Troubleshooting ==
 Some web browsers will fail to load the wine list in this shared version of Cellar View. Use your browser's settings to allow unsecured content.
 
+[http://cellar-view.googlecode.com/svn/wiki/images/cellar-view-shared-chrome-security.png http://cellar-view.googlecode.com/svn/wiki/images/cellar-view-shared-chrome-security.png]
+
 == Security ==
 This shared version of Cellar View is hosted by Google Drive. When you access this version of Cellar View, your !CellarTracker! username and password will be sent to Google web servers. The Cellar View developers have no control over any logging Google may do when you access this version of Cellar View.
 
