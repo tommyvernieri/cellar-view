@@ -943,7 +943,7 @@ var WineListTransform;
           updateLayout();
           
           if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
-            updatePageState("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
+            updatePageUri("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
           }
           
         }, 200);
