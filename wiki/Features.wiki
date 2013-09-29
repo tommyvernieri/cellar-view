@@ -26,7 +26,8 @@ The wines are presented in multiple columns with the following information.
   * Simplified appellation
   * Bin numbers
   * Price
+  * Bottle notes (in orange)
 
-In addition, wines in specific locations are preceded by an icon.
-  * ◊ for Wine Fridge - Future
-  * ⌂ for Wine Fridge - House
+In addition, wines in specific locations are color coded.
+  * Wine Fridge - Future in gray
+  * Wine Fridge - House in purple
