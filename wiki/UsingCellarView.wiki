@@ -18,10 +18,10 @@ _Visit the [https://googledrive.com/host/0B109bpnE8T6QcEF6UHppR2cyZFE/winelist.h
 Some web browsers will fail to load the wine list in this shared version of Cellar View. Use your browser's settings to allow unsecured content.
 
 == Security ==
-This shared version of Cellar View is hosted by Google Drive. When you access this version of Cellar View, your CellarTracker username and password will be sent to Google web servers. The Cellar View developers have no control over any logging Google may do when you access this version of Cellar View.
+This shared version of Cellar View is hosted by Google Drive. When you access this version of Cellar View, your !CellarTracker! username and password will be sent to Google web servers. The Cellar View developers have no control over any logging Google may do when you access this version of Cellar View.
 
 = Local Cellar View =
-If you do not want to depend on the shared version of Cellar View, you can copy Cellar View to your local computer. When using this approach, your CellarTracker username and password is only shared with CellarTracker.
+If you do not want to depend on the shared version of Cellar View, you can copy Cellar View to your local computer. When using this approach, your !CellarTracker! username and password is only shared with !CellarTracker!.
 
 You will not be able to access this version from a mobile device.
 
