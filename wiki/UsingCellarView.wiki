@@ -25,14 +25,14 @@ If you do not want to depend on the shared version of Cellar View, you can copy 
 
 You will not be able to access this version from a mobile device.
 
-* Visit https://cellar-view.googlecode.com/svn/tags/latest-release/winelist.html
-* Save the page to your computer using you web browser's File > Save Page As... menu option. Note the location where you save this file.
-* Browse to the location where you saved the winelist.html file on your computer and open it.
+ * Visit https://cellar-view.googlecode.com/svn/tags/latest-release/winelist.html
+ * Save the page to your computer using you web browser's File > Save Page As... menu option. Note the location where you save this file.
+ * Browse to the location where you saved the winelist.html file on your computer and open it.
 
 = Self-Hosted Cellar View =
 If you manage a web server, you can host your own copy of Cellar View. Upload the contents of the [ latest-release] folder to your web server.
 
 You can use SVN to checkout the latest version rather than manually uploading it.
 
-* Create a local working copy: `svn checkout http://cellar-view.googlecode.com/svn/tags/latest-release/ winelist`
-* Update to the latest version: `svn update winelist/`
+ * Create a local working copy: `svn checkout http://cellar-view.googlecode.com/svn/tags/latest-release/ winelist`
+ * Update to the latest version: `svn update winelist/`
