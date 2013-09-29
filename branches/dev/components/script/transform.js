@@ -187,8 +187,33 @@
       return result;
     }
 
-    function getIsTwoColumnLayoutFromQueryString() {
-      return queryString["columns"] == 2;
+    function getColumnsFromQueryString() {
+      var columnsParam;
+      columnsParam = queryString["columns"];
+      return getColumnsFromParameter(columnsParam);
+    }
+
+    function getColumnsFromForm() {
+      var columnsParam;
+      columnsParam = $('input[name="columns-input"]:checked').val();
+      return getColumnsFromParameter(columnsParam);
+    }
+
+    function getColumnsFromParameter(columnsParam) {
+      var columnCount;
+
+      if (typeof columnsParam !== "undefined") {
+        columnCount = parseInt(columnsParam, 10);
+      }
+
+      //Only allow these known values
+      if (columnCount !== 2
+        && columnCount !== 3) {
+        //Default to 3 columns for undefined and invalid values
+        columnCount = 3;
+      }
+
+      return columnCount;
     }
 
     function getHidePricesFromQueryString() {
@@ -208,14 +233,18 @@
     function getCredentialsFromQueryString() {
       return {
         user: queryString["user"],
-        password: queryString["password"]
+        password: queryString["password"],
+        columns: getColumnsFromQueryString(),
+        hidePrices: getHidePricesFromQueryString()
       };
     }
 
     function getCredentialsFromForm() {
       return {
         user: el('user-input').value,
-        password: el('password-input').value
+        password: el('password-input').value,
+        columns: getColumnsFromForm(),
+        hidePrices: false
       };
     }
     
@@ -232,7 +261,7 @@
       }
     }
         
-    function updateLayout() {
+    function updateLayout(credentials) {
       var columnCount,
         i,
         length,
@@ -241,12 +270,24 @@
         wineListWrapperEl,
         wineListMinWidth,
         wineNodes;
-        
+
+      if (typeof credentials === 'undefined') {
+        credentials = getCredentialsFromQueryString();
+      }
+      
       wineListWrapperEl = el('wine-list-wrapper');
       if (wineListWrapperEl) {
         wineListEl = getSingleElementByClassName(wineListWrapperEl, 'wine-list');
       }
       
+      if (credentials.hidePrices) {
+        addClass('wine-list-wrapper', 'hide-prices');
+      }
+
+      if (credentials.columns === 2) {
+        addClass('wine-list-wrapper', 'two-column');
+      }
+
       if (wineListEl) {
         wineNodes = wineListEl.getElementsByClassName('wine');
         length = wineNodes.length;
@@ -264,7 +305,7 @@
           //wineMaxWidth = Math.max(wineMaxWidth, wineNodes[i].offsetWidth + 4);
         }
         
-        columnCount = (getIsTwoColumnLayoutFromQueryString() ? 2 : 3);
+        columnCount = credentials.columns;
 
         //Set .wine-list min-width =
         //  (maximum width of .wine) * (column count of 3)
@@ -477,15 +518,30 @@
           rowData['BinList'].push(rowData['Bin']);
         }
       }
+
+      //Move the BottleNote to an array for normalization to handle wines
+      //with multiple bottle notes
+      if (!Array.isArray(rowData['BottleNoteList'])) {
+        rowData['BottleNoteList'] = [];
+        if (typeof rowData['BottleNote'] !== 'undefined') {
+          rowData['BottleNoteList'].push(rowData['BottleNote']);
+        }
+      }
     }
 
     function mergeRows(targetRow, sourceRow) {
       //Combine bins into a single array of values.
-      //The bin array may include undefined items for some
-      // wines, but the length of the array still indicates
-      // the quantity.
       if (typeof sourceRow['Bin'] !== 'undefined') {
         targetRow['BinList'].push(sourceRow['Bin']);
+      }
+
+      //Combine bottle notes into a single array of values.
+      //Ignore undefined bottle notes.
+      if (typeof sourceRow['BottleNote'] !== 'undefined') {
+        //Don't add duplicates
+        if (-1 === $.inArray(sourceRow['BottleNote'], targetRow['BottleNoteList'])) {
+          targetRow['BottleNoteList'].push(sourceRow['BottleNote']);
+        }
       }
     }
 
@@ -740,13 +796,13 @@
           .text('(' + localeAbbreviated + ')')
           .appendTo(nameAndLocale);
 
-        if (rowDataArray[i]['BottleNote']) {
+        $.each(rowDataArray[i]['BottleNoteList'], function(bottleNoteIndex, bottleNote) {
           $('<span>')
             .addClass('bottle-note')
-            .text(rowDataArray[i]['BottleNote'])
+            .text(bottleNote)
             .appendTo(nameAndLocale)
             .before('<br>');
-        }
+        });
 
         //This wine's bins and price
         binAndPriceList = $('<span>').addClass('bin-and-price-list');
@@ -886,8 +942,7 @@
     }
 
     function updatePageState(credentials, succeeded) {
-      var queryCredentials,
-          newUri;
+      var queryCredentials;
 
       queryCredentials = getCredentialsFromQueryString();
 
@@ -898,12 +953,24 @@
         setProgressStatus('Formatting data');
         
         setTimeout(function () {
+          var newUri;
+
           processRawData();
           showWineList();
-          updateLayout();
+          updateLayout(credentials);
           
-          if (queryCredentials.user !== credentials.user || queryCredentials.password !== credentials.password) {
-            updatePageUri("?User=" + encodeURIComponent(credentials.user) + "&Password=" + encodeURIComponent(credentials.password));
+          if (queryCredentials.user !== credentials.user
+            || queryCredentials.password !== credentials.password
+            || queryCredentials.columns !== credentials.columns) {
+
+            newUri = "?user=" + encodeURIComponent(credentials.user)
+              + "&password=" + encodeURIComponent(credentials.password);
+
+            if (typeof credentials.columns !== 'undefined' && credentials.columns !== 3) {
+              newUri += "&columns=" + credentials.columns;
+            }
+
+            updatePageUri(newUri);
           }
           
         }, 200);
@@ -934,21 +1001,7 @@
 
     return {
       init: function () {
-        var dataCleanupXML,
-          dataPresentationXML,
-          parser;
-
         queryString = getRawQueryString();
-        
-        if (getHidePricesFromQueryString()) {
-          addClass('wine-list-wrapper', 'hide-prices');
-        }
-
-        if (getIsTwoColumnLayoutFromQueryString()) {
-          addClass('wine-list-wrapper', 'two-column');
-        }
-        
-        parser = new DOMParser();
 
         window.onresize = (function () {
           var resizeTimeoutId;
