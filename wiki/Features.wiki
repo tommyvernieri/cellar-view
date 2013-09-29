@@ -1,7 +1,7 @@
 #summary Detailed features list.
 
 = Overview =
-Cellar View takes several steps to simplify the information presented about wines in your cellar. It displays a list of wines organized to make it easy to find what you're looking for without being overwhelmed by information.
+Cellar View takes several steps to simplify the information presented about wines in your cellar. It displays a list of your wines, organized in a way that makes it easy to find what you're looking for without being overwhelmed by information.
 
 == Simplified wine categorization ==
 === Wines are grouped by type ===
