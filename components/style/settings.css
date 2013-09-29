@@ -21,6 +21,10 @@
   padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
+#columns-input-caption {
+  vertical-align: top;
+}
+
 #footer {
   text-align: center;
 }
