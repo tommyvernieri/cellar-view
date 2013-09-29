@@ -545,15 +545,30 @@ var WineListTransform;
           rowData['BinList'].push(rowData['Bin']);
         }
       }
+
+      //Move the BottleNote to an array for normalization to handle wines
+      //with multiple bottle notes
+      if (!Array.isArray(rowData['BottleNoteList'])) {
+        rowData['BottleNoteList'] = [];
+        if (typeof rowData['BottleNote'] !== 'undefined') {
+          rowData['BottleNoteList'].push(rowData['BottleNote']);
+        }
+      }
     }
 
     function mergeRows(targetRow, sourceRow) {
       //Combine bins into a single array of values.
-      //The bin array may include undefined items for some
-      // wines, but the length of the array still indicates
-      // the quantity.
       if (typeof sourceRow['Bin'] !== 'undefined') {
         targetRow['BinList'].push(sourceRow['Bin']);
+      }
+
+      //Combine bottle notes into a single array of values.
+      //Ignore undefined bottle notes.
+      if (typeof sourceRow['BottleNote'] !== 'undefined') {
+        //Don't add duplicates
+        if (-1 === $.inArray(sourceRow['BottleNote'], targetRow['BottleNoteList'])) {
+          targetRow['BottleNoteList'].push(sourceRow['BottleNote']);
+        }
       }
     }
 
@@ -808,13 +823,13 @@ var WineListTransform;
           .text('(' + localeAbbreviated + ')')
           .appendTo(nameAndLocale);
 
-        if (rowDataArray[i]['BottleNote']) {
+        $.each(rowDataArray[i]['BottleNoteList'], function(bottleNoteIndex, bottleNote) {
           $('<span>')
             .addClass('bottle-note')
-            .text(rowDataArray[i]['BottleNote'])
+            .text(bottleNote)
             .appendTo(nameAndLocale)
             .before('<br>');
-        }
+        });
 
         //This wine's bins and price
         binAndPriceList = $('<span>').addClass('bin-and-price-list');
