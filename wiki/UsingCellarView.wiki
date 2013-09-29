@@ -3,9 +3,9 @@
 = Overview =
 There are three ways to use Cellar View.
 
-* Use a shared version of Cellar View (easy, mobile-compatible)
-* Copy Cellar View to your computer (desktop-only, more secure)
-* Deploy Cellar View to your own web server (advanced)
+ * Use a shared version of Cellar View (easy, mobile-compatible)
+ * Copy Cellar View to your computer (desktop-only, more secure)
+ * Deploy Cellar View to your own web server (advanced)
 
 After loading the main Cellar View page using any of these methods: first enter your !CellarTracker! handle and password; then click the Load wine list button. After your wine list loads, bookmark the page to get back to it later.
 
