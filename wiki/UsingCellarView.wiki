@@ -29,7 +29,7 @@ You will not be able to access this version from a mobile device.
 * Save the page to your computer using you web browser's File > Save Page As... menu option. Note the location where you save this file.
 * Browse to the location where you saved the winelist.html file on your computer and open it.
 
-= Host Cellar View =
+= Self-Hosted Cellar View =
 If you manage a web server, you can host your own copy of Cellar View. Upload the contents of the [ latest-release] folder to your web server.
 
 You can use SVN to checkout the latest version rather than manually uploading it.
