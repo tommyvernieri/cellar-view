@@ -1,0 +1,38 @@
+# Overview #
+There are three ways to use Cellar View.
+
+  * Use a shared version of Cellar View (easy, mobile-compatible)
+  * Copy Cellar View to your computer (desktop-only, more secure)
+  * Deploy Cellar View to your own web server (advanced)
+
+After loading the main Cellar View page using any of these methods: first enter your CellarTracker! handle and password; then click the Load wine list button. After your wine list loads, bookmark the page to get back to it later.
+
+# Shared Cellar View #
+The Cellar View developers have created a shared copy that is available to anyone. You can access this page from your desktop or mobile web browser.
+
+_Visit the [Shared Cellar View](https://googledrive.com/host/0B109bpnE8T6QcEF6UHppR2cyZFE/winelist.html)._
+
+## Troubleshooting ##
+Some web browsers will fail to load the wine list in this shared version of Cellar View. Use your browser's settings to allow unsecured content.
+
+![![](http://cellar-view.googlecode.com/svn/wiki/images/cellar-view-shared-chrome-security.png)](http://cellar-view.googlecode.com/svn/wiki/images/cellar-view-shared-chrome-security.png)
+
+## Security ##
+This shared version of Cellar View is hosted by Google Drive. When you access this version of Cellar View, your CellarTracker! username and password will be sent to Google web servers. The Cellar View developers have no control over any logging Google may do when you access this version of Cellar View.
+
+# Local Cellar View #
+If you do not want to depend on the shared version of Cellar View, you can copy Cellar View to your local computer. When using this approach, your CellarTracker! username and password is only shared with CellarTracker!.
+
+You will not be able to access this version from a mobile device.
+
+  * Visit https://cellar-view.googlecode.com/svn/tags/latest-release/winelist.html
+  * Save the page to your computer using you web browser's File > Save Page As... menu option. Note the location where you save this file.
+  * Browse to the location where you saved the winelist.html file on your computer and open it.
+
+# Self-Hosted Cellar View #
+If you manage a web server, you can host your own copy of Cellar View. Upload the contents of the [latest-release](https://code.google.com/p/cellar-view/source/browse/#svn%2Ftags%2Flatest-release) folder to your web server.
+
+You can use SVN to checkout the latest version rather than manually uploading it.
+
+  * Create a local working copy: `svn checkout http://cellar-view.googlecode.com/svn/tags/latest-release/ winelist`
+  * Update to the latest version: `svn update winelist/`
